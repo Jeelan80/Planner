@@ -31,38 +31,38 @@ export const GoalCard: React.FC<GoalCardProps> = ({
 
   const getPriorityColor = (priority: Goal['priority']) => {
     switch (priority) {
-      case 'high': return 'text-red-600 bg-red-100';
-      case 'medium': return 'text-yellow-600 bg-yellow-100';
-      case 'low': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'high': return 'text-red-800 bg-red-200 shadow-sm border border-red-300';
+      case 'medium': return 'text-amber-800 bg-amber-200 shadow-sm border border-amber-300';
+      case 'low': return 'text-emerald-800 bg-emerald-200 shadow-sm border border-emerald-300';
+      default: return 'text-slate-800 bg-slate-200 shadow-sm border border-slate-300';
     }
   };
 
   const getStatusColor = (status: Goal['status']) => {
     switch (status) {
-      case 'active': return 'text-blue-600 bg-blue-100';
-      case 'completed': return 'text-green-600 bg-green-100';
-      case 'paused': return 'text-gray-600 bg-gray-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'active': return 'text-blue-800 bg-blue-200 shadow-sm border border-blue-300';
+      case 'completed': return 'text-emerald-800 bg-emerald-200 shadow-sm border border-emerald-300';
+      case 'paused': return 'text-slate-800 bg-slate-200 shadow-sm border border-slate-300';
+      default: return 'text-slate-800 bg-slate-200 shadow-sm border border-slate-300';
     }
   };
 
   return (
-    <Card hover className="relative">
+    <Card hover className="relative goal-card-enhanced">
       {/* Status indicator */}
       <div className="absolute top-4 right-4">
-        <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(goal.status)}`}>
+        <span className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full ${getStatusColor(goal.status)}`}>
           {goal.status}
         </span>
       </div>
 
       {/* Goal Header */}
-      <div className="mb-4 pr-20">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+      <div className="mb-4 pr-24">
+        <h3 className="text-xl font-bold text-slate-900 mb-2 drop-shadow-sm">
           {goal.title}
         </h3>
         {goal.description && (
-          <p className="text-sm text-gray-600 line-clamp-2">
+          <p className="text-sm text-slate-700 line-clamp-2 font-medium">
             {goal.description}
           </p>
         )}
@@ -71,21 +71,21 @@ export const GoalCard: React.FC<GoalCardProps> = ({
       {/* Goal Details */}
       <div className="space-y-3 mb-4">
         {/* Date Range */}
-        <div className="flex items-center text-sm text-gray-600">
-          <Calendar className="w-4 h-4 mr-2" />
+        <div className="flex items-center text-sm text-slate-800 font-medium">
+          <Calendar className="w-4 h-4 mr-2 text-slate-600" />
           <span>
             {dateUtils.formatDate(goal.startDate)} - {dateUtils.formatDate(goal.endDate)}
           </span>
           {isOverdue && (
-            <span className="ml-2 text-red-600 font-medium">
+            <span className="ml-2 text-red-700 font-bold bg-red-100 px-2 py-1 rounded-md">
               (Overdue)
             </span>
           )}
         </div>
 
         {/* Daily Time */}
-        <div className="flex items-center text-sm text-gray-600">
-          <Clock className="w-4 h-4 mr-2" />
+        <div className="flex items-center text-sm text-slate-800 font-medium">
+          <Clock className="w-4 h-4 mr-2 text-slate-600" />
           <span>
             {Math.floor(goal.estimatedDailyTimeMinutes / 60)}h {goal.estimatedDailyTimeMinutes % 60}m daily
           </span>
@@ -93,12 +93,11 @@ export const GoalCard: React.FC<GoalCardProps> = ({
 
         {/* Priority */}
         <div className="flex items-center">
-          <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(goal.priority)}`}>
+          <span className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full ${getPriorityColor(goal.priority)}`}>
             {goal.priority} priority
           </span>
           {daysRemaining >= 0 && (
-            <span className="ml-2 text-xs text-gray-500">
-              {daysRemaining} days remaining
+            <span className="ml-2 text-xs text-slate-700 font-medium bg-slate-100 px-2 py-1 rounded-md border border-slate-200">{daysRemaining} days remaining
             </span>
           )}
         </div>
@@ -106,12 +105,12 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         {/* Tags */}
         {goal.tags && goal.tags.length > 0 && (
           <div className="flex items-center">
-            <Tag className="w-4 h-4 mr-2 text-gray-400" />
+            <Tag className="w-4 h-4 mr-2 text-slate-600" />
             <div className="flex flex-wrap gap-1">
               {goal.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="inline-block px-2 py-1 text-xs text-gray-600 bg-gray-100 rounded-md"
+                  className="inline-block px-2 py-1 text-xs text-slate-800 bg-slate-200 rounded-md font-medium border border-slate-300 shadow-sm"
                 >
                   {tag}
                 </span>
@@ -125,8 +124,8 @@ export const GoalCard: React.FC<GoalCardProps> = ({
       {tasksCount > 0 && (
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">Progress</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm font-bold text-slate-800">Progress</span>
+            <span className="text-sm text-slate-700 font-semibold bg-slate-100 px-2 py-1 rounded-md border border-slate-200">
               {completedTasksCount}/{tasksCount} tasks ({Math.round(progress)}%)
             </span>
           </div>
@@ -141,7 +140,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
       )}
 
       {/* Actions */}
-      <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+      <div className="flex justify-between items-center pt-4 border-t border-slate-300">
         <div className="flex space-x-2">
           {onEdit && (
             <Button
@@ -175,7 +174,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
             variant="ghost"
             icon={Trash2}
             onClick={() => onDelete(goal.id)}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="text-red-700 hover:text-red-800 hover:bg-red-100 font-semibold border border-red-200 shadow-sm"
           />
         )}
       </div>

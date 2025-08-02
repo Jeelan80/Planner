@@ -60,6 +60,7 @@ export interface GoalFormData {
   startDate: string;
   endDate: string;
   estimatedDailyTimeMinutes: number;
+  estimatedDailyTime: string; // e.g. '07:00 AM'
   priority: Goal['priority'];
   tags: string[];
 }

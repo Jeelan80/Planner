@@ -1,10 +1,13 @@
 // Form component for creating goals
 
 import React, { useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { Button } from '../common/Button';
 import { Card } from '../common/Card';
 import { GoalFormData } from '../../types';
-import { Plus, Calendar, Clock } from 'lucide-react';
+import { Plus, Clock } from 'lucide-react';
+import { TimePickerInput } from './TimePickerInput';
 
 interface PlannerFormProps {
   onSubmit: (goalData: GoalFormData) => void;
@@ -25,6 +28,7 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
     startDate: initialData?.startDate || new Date().toISOString().split('T')[0],
     endDate: initialData?.endDate || '',
     estimatedDailyTimeMinutes: initialData?.estimatedDailyTimeMinutes || 60,
+    estimatedDailyTime: initialData?.estimatedDailyTime || '07:00 AM',
     priority: initialData?.priority || 'medium',
     tags: initialData?.tags || [],
   });
@@ -43,6 +47,20 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
     setFormData(prev => ({
       ...prev,
       [name]: name === 'estimatedDailyTimeMinutes' ? Number(value) : value,
+    }));
+  };
+
+  const handleTimeChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      estimatedDailyTime: value,
+    }));
+  };
+
+  const handleDateChange = (date: Date | null, field: 'startDate' | 'endDate') => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: date ? date.toISOString().split('T')[0] : '',
     }));
   };
 
@@ -119,34 +137,42 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
-              <Calendar className="w-4 h-4 inline mr-1" />
               Start Date *
             </label>
-            <input
-              type="date"
-              id="startDate"
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
+            <DatePicker
+              selected={formData.startDate ? new Date(formData.startDate) : new Date()}
+              onChange={(date: Date | null) => handleDateChange(date, 'startDate')}
+              selectsStart
+              startDate={formData.startDate ? new Date(formData.startDate) : new Date()}
+              endDate={formData.endDate ? new Date(formData.endDate) : null}
+              dateFormat="yyyy-MM-dd"
+              className="date-picker-enhanced w-full pl-10 pr-10 py-2 border border-blue-200 rounded-xl shadow focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-white/60 backdrop-blur-md text-slate-900 font-semibold"
+              placeholderText="Select start date"
+              showPopperArrow={false}
+              popperClassName="date-picker-popper"
+              isClearable
+              todayButton="Today"
             />
           </div>
 
           <div>
             <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-2">
-              <Calendar className="w-4 h-4 inline mr-1" />
               End Date *
             </label>
-            <input
-              type="date"
-              id="endDate"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleInputChange}
-              min={formData.startDate}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
+            <DatePicker
+              selected={formData.endDate ? new Date(formData.endDate) : null}
+              onChange={(date: Date | null) => handleDateChange(date, 'endDate')}
+              selectsEnd
+              startDate={formData.startDate ? new Date(formData.startDate) : new Date()}
+              endDate={formData.endDate ? new Date(formData.endDate) : null}
+              minDate={formData.startDate ? new Date(formData.startDate) : new Date()}
+              dateFormat="yyyy-MM-dd"
+              className="date-picker-enhanced w-full pl-10 pr-10 py-2 border border-blue-200 rounded-xl shadow focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-white/60 backdrop-blur-md text-slate-900 font-semibold"
+              placeholderText="Select end date"
+              showPopperArrow={false}
+              popperClassName="date-picker-popper"
+              isClearable
+              todayButton="Today"
             />
           </div>
         </div>
@@ -154,24 +180,16 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
         {/* Daily Time and Priority */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="estimatedDailyTimeMinutes" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="estimatedDailyTime" className="block text-sm font-medium text-gray-700 mb-2">
               <Clock className="w-4 h-4 inline mr-1" />
-              Daily Time (minutes) *
+              Daily Time *
             </label>
-            <input
-              type="number"
-              id="estimatedDailyTimeMinutes"
-              name="estimatedDailyTimeMinutes"
-              value={formData.estimatedDailyTimeMinutes}
-              onChange={handleInputChange}
-              min="15"
-              max="480"
-              step="15"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
+            <TimePickerInput
+              value={formData.estimatedDailyTime}
+              onChange={handleTimeChange}
             />
             <p className="text-xs text-gray-500 mt-1">
-              {Math.floor(formData.estimatedDailyTimeMinutes / 60)}h {formData.estimatedDailyTimeMinutes % 60}m per day
+              Selected: {formData.estimatedDailyTime}
             </p>
           </div>
 
@@ -179,17 +197,22 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
             <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-2">
               Priority
             </label>
-            <select
-              id="priority"
-              name="priority"
-              value={formData.priority}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
+            <div className="relative">
+              <select
+                id="priority"
+                name="priority"
+                value={formData.priority}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 rounded-xl border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-900 font-semibold shadow focus:ring-4 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200 appearance-none pr-10 custom-priority-select"
+              >
+                <option value="low" className="text-green-600 font-bold">🟢 Low</option>
+                <option value="medium" className="text-yellow-600 font-bold">🟡 Medium</option>
+                <option value="high" className="text-red-600 font-bold">🔴 High</option>
+              </select>
+              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400"><path d="M6 9l6 6 6-6"/></svg>
+              </span>
+            </div>
           </div>
         </div>
 

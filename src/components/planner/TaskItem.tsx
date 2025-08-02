@@ -23,49 +23,49 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 
   const getCategoryColor = (category: Task['category']) => {
     switch (category) {
-      case 'daily': return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'milestone': return 'bg-purple-50 text-purple-700 border-purple-200';
-      case 'review': return 'bg-green-50 text-green-700 border-green-200';
-      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+      case 'daily': return 'bg-blue-200 text-blue-800 border-blue-300 shadow-sm font-semibold';
+      case 'milestone': return 'bg-purple-200 text-purple-800 border-purple-300 shadow-sm font-semibold';
+      case 'review': return 'bg-emerald-200 text-emerald-800 border-emerald-300 shadow-sm font-semibold';
+      default: return 'bg-slate-200 text-slate-800 border-slate-300 shadow-sm font-semibold';
     }
   };
 
   return (
     <div className={`
-      bg-white border rounded-lg p-4 transition-all duration-200
-      ${task.completed ? 'opacity-75 bg-gray-50' : ''}
-      ${isOverdue ? 'border-red-200 bg-red-50' : 'border-gray-200'}
-      ${isToday && !task.completed ? 'border-blue-300 shadow-sm' : ''}
-      hover:shadow-md
+      task-item-enhanced border rounded-xl p-5 transition-all duration-300
+      ${task.completed ? 'opacity-80 bg-slate-100 border-slate-300' : 'bg-white border-slate-200'}
+      ${isOverdue ? 'border-red-300 bg-red-50 shadow-red-100' : ''}
+      ${isToday && !task.completed ? 'border-blue-400 shadow-blue-100 bg-blue-50' : ''}
+      hover:shadow-lg hover:scale-[1.02]
     `}>
-      <div className="flex items-start space-x-3">
+      <div className="flex items-start space-x-4">
         {/* Checkbox */}
         <button
           onClick={() => onToggleComplete?.(task.id, !task.completed)}
           className={`
-            flex items-center justify-center w-5 h-5 mt-0.5 rounded border-2 transition-colors
+            flex items-center justify-center w-6 h-6 mt-0.5 rounded-lg border-2 transition-all duration-200 shadow-sm
             ${task.completed 
-              ? 'bg-green-600 border-green-600 text-white' 
-              : 'border-gray-300 hover:border-blue-500'
+              ? 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-200' 
+              : 'border-slate-400 hover:border-blue-500 hover:bg-blue-50 bg-white'
             }
           `}
         >
-          {task.completed && <Check className="w-3 h-3" />}
+          {task.completed && <Check className="w-4 h-4" />}
         </button>
 
         {/* Task Content */}
         <div className="flex-1 min-w-0">
           {/* Title and Category */}
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-3">
             <h4 className={`
-              font-medium
-              ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}
+              font-bold text-lg
+              ${task.completed ? 'line-through text-slate-500' : 'text-slate-900'}
             `}>
               {task.title}
             </h4>
             
             <span className={`
-              inline-flex items-center px-2 py-1 text-xs font-medium rounded-md border
+              inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-lg border
               ${getCategoryColor(task.category)}
             `}>
               {task.category}
@@ -74,53 +74,53 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 
           {/* Description */}
           {task.description && (
-            <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+            <p className="text-sm text-slate-700 mb-3 line-clamp-2 font-medium">
               {task.description}
             </p>
           )}
 
           {/* Goal Title (if showing) */}
           {showGoalTitle && goalTitle && (
-            <p className="text-xs text-gray-500 mb-2">
+            <p className="text-xs text-slate-600 mb-3 font-semibold bg-slate-100 px-2 py-1 rounded-md border border-slate-200">
               Goal: {goalTitle}
             </p>
           )}
 
           {/* Task Details */}
-          <div className="flex items-center space-x-4 text-xs text-gray-500">
+          <div className="flex items-center space-x-4 text-xs text-slate-700 font-medium">
             {/* Scheduled Date */}
-            <div className="flex items-center space-x-1">
-              <Calendar className="w-3 h-3" />
-              <span className={isOverdue ? 'text-red-600' : ''}>
+            <div className="flex items-center space-x-1 bg-slate-100 px-2 py-1 rounded-md border border-slate-200">
+              <Calendar className="w-3 h-3 text-slate-600" />
+              <span className={isOverdue ? 'text-red-700 font-bold' : 'text-slate-800'}>
                 {dateUtils.formatDate(task.scheduledDate, 'relative')}
               </span>
             </div>
 
             {/* Estimated Time */}
-            <div className="flex items-center space-x-1">
-              <Clock className="w-3 h-3" />
-              <span>
+            <div className="flex items-center space-x-1 bg-slate-100 px-2 py-1 rounded-md border border-slate-200">
+              <Clock className="w-3 h-3 text-slate-600" />
+              <span className="text-slate-800">
                 {Math.floor(task.estimatedTimeMinutes / 60)}h {task.estimatedTimeMinutes % 60}m
               </span>
             </div>
 
             {/* Completion Status */}
             {task.completed && task.completedAt && (
-              <span className="text-green-600">
+              <span className="text-emerald-700 font-bold bg-emerald-100 px-2 py-1 rounded-md border border-emerald-200">
                 Completed {dateUtils.formatDate(task.completedAt, 'relative')}
               </span>
             )}
 
             {/* Overdue indicator */}
             {isOverdue && (
-              <span className="text-red-600 font-medium">
+              <span className="text-red-700 font-bold bg-red-100 px-2 py-1 rounded-md border border-red-200">
                 Overdue
               </span>
             )}
 
             {/* Today indicator */}
             {isToday && !task.completed && (
-              <span className="text-blue-600 font-medium">
+              <span className="text-blue-700 font-bold bg-blue-100 px-2 py-1 rounded-md border border-blue-200">
                 Due Today
               </span>
             )}

@@ -1,5 +1,65 @@
-/* Enhanced UI styles */
+/* Custom style for react-datepicker clear button */
+.react-datepicker__close-icon {
+  right: 1.5rem !important;
+  background: none !important;
+  color: #2563eb !important;
+  font-size: 1.3em !important;
+  font-weight: bold !important;
+  opacity: 0.85;
+  transition: color 0.2s;
+}
+.react-datepicker__close-icon:hover {
+  color: #1d4ed8 !important;
+  opacity: 1;
+}
+/* Enhanced date picker styles */
+.date-picker-enhanced {
+  background: rgba(255,255,255,0.7);
+  border: 1.5px solid #60a5fa;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px rgba(96,165,250,0.08), 0 1px 0 rgba(255,255,255,0.2);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.date-picker-enhanced:focus {
+  border-color: #2563eb;
+  box-shadow: 0 4px 20px rgba(37,99,235,0.12);
+  background: rgba(255,255,255,0.85);
+}
+.date-picker-enhanced:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 16px rgba(59,130,246,0.10);
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.header-modern {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  position: relative;
+  z-index: 10;
+}
+
+.nav-pill {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-pill:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+/* Enhanced UI styles */
 
 * {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -34,12 +94,12 @@ body::before {
 }
 
 .card-glass {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.25);
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   border-radius: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   transition: all 0.3s ease;
@@ -48,8 +108,47 @@ body::before {
 .card-glass:hover {
   transform: translateY(-5px);
   box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Enhanced goal card styling */
+.goal-card-enhanced {
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 
     0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+}
+
+.goal-card-enhanced:hover {
+  transform: translateY(-8px);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced task item styling */
+.task-item-enhanced {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.task-item-enhanced:hover {
+  box-shadow: 
+    0 12px 35px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .btn-gradient {
@@ -174,6 +273,22 @@ body::before {
   40% { content: '..'; }
   60%, 100% { content: '...'; }
 }
+
+/* Priority dropdown custom popup styles */
+.custom-priority-select {
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.custom-priority-select option {
+  border-radius: 0.75rem;
+  margin: 2px 0;
+  padding: 0.5rem 1rem;
+}
+.custom-priority-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #a78bfa;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
