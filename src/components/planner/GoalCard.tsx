@@ -1,6 +1,7 @@
 // Component for displaying individual goals
 
 import React from 'react';
+import styles from './GoalCard.module.css';
 import { Goal } from '../../types';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
@@ -129,10 +130,11 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               {completedTasksCount}/{tasksCount} tasks ({Math.round(progress)}%)
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className={styles.progressBar}>
             <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
+              className={
+                `${styles.progress} ${styles[`progress${Math.round(progress / 10) * 10}`]}`
+              }
             />
           </div>
         </div>

@@ -23,7 +23,7 @@ export const Card: React.FC<CardProps> = ({
   };
 
   const classes = [
-    'bg-white rounded-lg border border-gray-200 shadow-sm',
+    'card-glass',
     hover ? 'hover:shadow-md transition-shadow cursor-pointer' : '',
     paddingClasses[padding],
     className,

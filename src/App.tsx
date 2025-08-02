@@ -1,6 +1,6 @@
 // Main App component with foundational structure
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Layout } from './components/layout/Layout';
 import { PlannerForm } from './components/forms/PlannerForm';
 import { GoalCard } from './components/planner/GoalCard';
@@ -28,7 +28,7 @@ function App() {
   } = useGoals();
 
   const {
-    tasks,
+    // tasks,
     generateTasksForGoal,
     updateTask,
     getTasksForGoal,
@@ -61,7 +61,12 @@ function App() {
     });
 
     // Regenerate tasks for updated goal
-    const updatedGoal = { ...editingGoal, ...goalData };
+    const updatedGoal = {
+      ...editingGoal,
+      ...goalData,
+      startDate: new Date(goalData.startDate),
+      endDate: new Date(goalData.endDate)
+    };
     generateTasksForGoal(updatedGoal);
     
     setEditingGoal(null);
@@ -88,42 +93,52 @@ function App() {
 
   const renderDashboard = () => (
     <div className="space-y-8">
+      {/* Welcome Section */}
+      <div className="text-center py-8">
+        <h2 className="text-4xl font-bold text-white mb-4">
+          Welcome to Your Goal Journey
+        </h2>
+        <p className="text-xl text-white/80 max-w-2xl mx-auto">
+          Transform your dreams into achievable milestones with our intelligent planning system
+        </p>
+      </div>
+
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <div className="flex items-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg">
-              <Target className="w-6 h-6 text-blue-600" />
+            <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg icon-float">
+              <Target className="w-6 h-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-2xl font-semibold text-gray-900">{activeGoals.length}</p>
-              <p className="text-sm text-gray-600">Active Goals</p>
+              <p className="text-2xl font-bold text-gradient">{activeGoals.length}</p>
+              <p className="text-sm text-white/70 font-medium">Active Goals</p>
             </div>
           </div>
         </Card>
 
         <Card>
           <div className="flex items-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+            <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg icon-float">
+              <CheckCircle className="w-6 h-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-2xl font-semibold text-gray-900">
+              <p className="text-2xl font-bold text-gradient">
                 {todaysTasks.filter(t => t.completed).length}
               </p>
-              <p className="text-sm text-gray-600">Tasks Completed Today</p>
+              <p className="text-sm text-white/70 font-medium">Tasks Completed Today</p>
             </div>
           </div>
         </Card>
 
         <Card>
           <div className="flex items-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-yellow-600" />
+            <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl shadow-lg icon-float">
+              <Calendar className="w-6 h-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-2xl font-semibold text-gray-900">{todaysTasks.length}</p>
-              <p className="text-sm text-gray-600">Tasks Due Today</p>
+              <p className="text-2xl font-bold text-gradient">{todaysTasks.length}</p>
+              <p className="text-sm text-white/70 font-medium">Tasks Due Today</p>
             </div>
           </div>
         </Card>

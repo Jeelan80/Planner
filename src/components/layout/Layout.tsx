@@ -15,7 +15,7 @@ export const Layout: React.FC<LayoutProps> = ({
   onSettingsClick 
 }) => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Header title={title} onSettingsClick={onSettingsClick} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -23,11 +23,16 @@ export const Layout: React.FC<LayoutProps> = ({
       </main>
       
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <p className="text-center text-sm text-gray-500">
-            Auto Goal Planner - Plan, Track, Achieve
-          </p>
+      <footer className="footer border-t border-white/10 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="text-center">
+            <p className="text-sm font-medium text-white/90 mb-2">
+              Auto Goal Planner
+            </p>
+            <p className="text-xs text-white/60">
+              Plan Smart • Track Progress • Achieve More
+            </p>
+          </div>
         </div>
       </footer>
     </div>

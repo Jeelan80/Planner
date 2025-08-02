@@ -31,7 +31,7 @@ VITE_STORAGE_PREFIX=autoGoalPlanner_dev_
 // Start development server
 try {
   console.log('🚀 Starting Vite development server...');
-  execSync('npm run dev', { stdio: 'inherit' });
+  execSync('npx vite', { stdio: 'inherit' });
 } catch (error) {
   console.error('❌ Failed to start development server:', error.message);
   process.exit(1);
