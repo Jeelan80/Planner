@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Goal, Calendar, Settings } from 'lucide-react';
+import { ThemeToggle } from '../common/ThemeToggle';
 
 interface HeaderProps {
   title?: string;
@@ -13,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSettingsClick 
 }) => {
   return (
-    <header className="header-modern shadow-sm border-b border-gray-100">
+    <header className="header-modern shadow-sm border-b border-gray-100 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Title */}
@@ -21,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl shadow-lg">
               <Goal className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-xl font-bold text-white">
+            <h1 className="text-xl font-bold text-white dark:text-white">
               {title}
             </h1>
           </div>
@@ -38,14 +39,17 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </nav>
 
-          {/* Settings */}
-          <button
-            onClick={onSettingsClick}
-            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300"
-            aria-label="Settings"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
+          {/* Theme Toggle and Settings */}
+          <div className="flex items-center space-x-3">
+            <ThemeToggle />
+            <button
+              onClick={onSettingsClick}
+              className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300"
+              aria-label="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
     </header>

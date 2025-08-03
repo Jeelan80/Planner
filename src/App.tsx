@@ -152,9 +152,7 @@ function App() {
       />
 
       {/* AI Goal Planner Card */}
-      <AIGoalPlannerCard
-        onStartAIPlanning={() => setCurrentView('ai-planner')}
-      />
+      <AIGoalPlannerCard />
 
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -393,32 +391,6 @@ function App() {
     <Layout onSettingsClick={() => console.log('Settings clicked')}>
       {/* First Time Setup Modal */}
       {isFirstTime && <FirstTimeSetup onNameSubmit={saveName} />}
-
-      {/* Navigation */}
-      <div className="mb-8">
-        <nav className="flex space-x-1 bg-gray-100 rounded-lg p-1">
-          {[
-            { key: 'dashboard', label: 'Dashboard', icon: Target },
-            { key: 'today', label: 'Today', icon: Calendar },
-            { key: 'goals', label: 'Goals', icon: CheckCircle },
-          ].map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              onClick={() => setCurrentView(key as ViewMode)}
-              className={`
-                flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors
-                ${currentView === key
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-                }
-              `}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{label}</span>
-            </button>
-          ))}
-        </nav>
-      </div>
 
       {/* Main Content */}
       {currentView === 'dashboard' && renderDashboard()}
