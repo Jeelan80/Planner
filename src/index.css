@@ -503,6 +503,7 @@ body::before {
 /* Layout adjustments for fixed header */
  .main-content {
   padding-top: 70px; /* Further reduced gap for minimal spacing below navbar */
+  padding-bottom: 5rem; /* Prevent footer overlap */
 }
 
 /* Animation delay utilities */

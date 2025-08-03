@@ -159,10 +159,9 @@ export const AIGoalPlannerCard: React.FC = () => {
               <Brain className="w-7 h-7 text-white" />
             </div>
             <h3 className="text-2xl font-bold text-white dark:text-white flex items-center space-x-2 mb-1">
-              <span>AI Goal Planner</span>
+              <span>What's Your Goal?</span>
               <Sparkles className="w-6 h-6 text-purple-400 dark:text-purple-300" />
             </h3>
-            <p className="text-base text-slate-300 dark:text-slate-200 font-medium mb-2">What's Your Goal?</p>
             <input
               type="text"
               value={goalInput}
