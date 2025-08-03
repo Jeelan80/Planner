@@ -143,7 +143,7 @@ export const AIGoalPlannerCard: React.FC = () => {
   };
 
   return (
-    <Card className="relative overflow-hidden mx-auto max-w-2xl min-h-[600px] flex flex-col justify-start items-center p-8 rounded-3xl shadow-2xl border-2 border-purple-300 card-gradient mt-20">
+    <Card className="relative overflow-hidden mx-auto max-w-2xl min-h-[600px] flex flex-col justify-start items-center p-8 rounded-3xl shadow-2xl border-2 border-purple-300 card-gradient mt-48">
       {/* Background decorative elements */}
       <div className="absolute top-0 right-0 w-32 h-32 opacity-10 pointer-events-none">
         <div className="absolute top-4 right-4 w-8 h-8 bg-blue-500 rounded-full animate-pulse"></div>

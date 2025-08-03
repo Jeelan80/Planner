@@ -31,19 +31,19 @@ export const GoalCard: React.FC<GoalCardProps> = ({
 
   const getPriorityColor = (priority: Goal['priority']) => {
     switch (priority) {
-      case 'high': return 'text-red-800 bg-red-200 shadow-sm border border-red-300';
-      case 'medium': return 'text-amber-800 bg-amber-200 shadow-sm border border-amber-300';
-      case 'low': return 'text-emerald-800 bg-emerald-200 shadow-sm border border-emerald-300';
-      default: return 'text-slate-800 bg-slate-200 shadow-sm border border-slate-300';
+      case 'high': return 'text-red-800 bg-red-200 dark:text-red-300 dark:bg-red-700/90 font-extrabold shadow-sm border border-red-300 dark:border-red-400';
+      case 'medium': return 'text-amber-800 bg-amber-200 dark:text-yellow-300 dark:bg-yellow-700/90 font-extrabold shadow-sm border border-amber-300 dark:border-yellow-400';
+      case 'low': return 'text-emerald-800 bg-emerald-200 dark:text-green-300 dark:bg-green-700/90 font-extrabold shadow-sm border border-emerald-300 dark:border-green-400';
+      default: return 'text-slate-800 bg-slate-200 dark:text-white dark:bg-slate-700/90 font-extrabold shadow-sm border border-slate-300 dark:border-slate-400';
     }
   };
 
   const getStatusColor = (status: Goal['status']) => {
     switch (status) {
-      case 'active': return 'text-blue-800 bg-blue-200 shadow-sm border border-blue-300';
-      case 'completed': return 'text-emerald-800 bg-emerald-200 shadow-sm border border-emerald-300';
-      case 'paused': return 'text-slate-800 bg-slate-200 shadow-sm border border-slate-300';
-      default: return 'text-slate-800 bg-slate-200 shadow-sm border border-slate-300';
+      case 'active': return 'text-blue-800 bg-blue-200 dark:text-blue-300 dark:bg-blue-700/90 font-extrabold shadow-sm border border-blue-300 dark:border-blue-400';
+      case 'completed': return 'text-emerald-800 bg-emerald-200 dark:text-green-300 dark:bg-green-700/90 font-extrabold shadow-sm border border-emerald-300 dark:border-green-400';
+      case 'paused': return 'text-slate-800 bg-slate-200 dark:text-white dark:bg-slate-700/90 font-extrabold shadow-sm border border-slate-300 dark:border-slate-400';
+      default: return 'text-slate-800 bg-slate-200 dark:text-white dark:bg-slate-700/90 font-extrabold shadow-sm border border-slate-300 dark:border-slate-400';
     }
   };
 
@@ -127,7 +127,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
             {goal.priority} priority
           </span>
           {daysRemaining >= 0 && (
-            <span className="ml-2 text-xs text-slate-700 font-medium bg-slate-100 px-2 py-1 rounded-md border border-slate-200">{daysRemaining} days remaining
+            <span className="ml-2 text-xs text-slate-700 dark:text-yellow-300 font-extrabold bg-slate-100 dark:bg-yellow-700/90 px-2 py-1 rounded-md border border-slate-200 dark:border-yellow-400">{daysRemaining} days remaining
             </span>
           )}
         </div>
@@ -140,7 +140,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               {goal.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="inline-block px-2 py-1 text-xs text-slate-800 bg-slate-200 rounded-md font-medium border border-slate-300 shadow-sm"
+                  className="inline-block px-2 py-1 text-xs text-slate-800 dark:text-blue-300 bg-slate-200 dark:bg-blue-700/90 rounded-md font-extrabold border border-slate-300 dark:border-blue-400 shadow-sm"
                 >
                   {tag}
                 </span>
@@ -154,9 +154,9 @@ export const GoalCard: React.FC<GoalCardProps> = ({
       {tasksCount > 0 && (
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-bold text-slate-800">Progress</span>
-            <span className="text-sm text-slate-700 font-semibold bg-slate-100 px-2 py-1 rounded-md border border-slate-200">
-              {completedTasksCount}/{tasksCount} tasks ({Math.round(progress)}%)
+            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">Progress</span>
+            <span className="text-sm text-slate-800 dark:text-slate-200 font-bold bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 shadow-sm">
+              <span className="text-slate-900 dark:text-white font-black opacity-100">{completedTasksCount}/{tasksCount} tasks ({Math.round(progress)}%)</span>
             </span>
           </div>
           <div className={styles.progressBar}>

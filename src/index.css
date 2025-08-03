@@ -6,7 +6,7 @@
 }
 
 .card-gradient {
-  background: #191c29;
+  background: #1e293b;
   position: relative;
   z-index: 0;
   border-radius: 1.25rem; /* 20px */
@@ -16,7 +16,7 @@
 }
 
 .dark .card-gradient {
-  background: #0f172a;
+  background: #1e293b;
   box-shadow: 0 12px 40px rgba(0,0,0,0.7);
 }
 
@@ -28,7 +28,7 @@
   top: -50%;
   width: 200%;
   height: 200%;
-  background-color: #191c29;
+  background-color: #1e293b;
   background-repeat: no-repeat;
   background-size: 50% 50%, 50% 50%;
   background-position: 0 0, 100% 0, 100% 100%, 0 100%;
@@ -37,7 +37,7 @@
 }
 
 .dark .card-gradient::before {
-  background-color: #0f172a;
+  background-color: #1e293b;
   background-image: linear-gradient(#3b82f6, #8b5cf6), linear-gradient(#ec4899, #a855f7), linear-gradient(#3b82f6, #8b5cf6), linear-gradient(#ec4899, #a855f7);
 }
 
@@ -49,12 +49,12 @@
   top: 4px;
   width: calc(100% - 8px);
   height: calc(100% - 8px);
-  background: #191c29;
+  background: #1e293b;
   border-radius: 1rem; /* 16px */
 }
 
 .dark .card-gradient::after {
-  background: #0f172a;
+  background: #1e293b;
 }
 
 .card-gradient > * {
@@ -260,12 +260,23 @@ body::before {
   -webkit-backdrop-filter: blur(25px);
 }
 
+.dark .goal-card-enhanced {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255,255,255,0.1);
+}
+
 .goal-card-enhanced:hover {
   transform: translateY(-8px);
   box-shadow: 
     0 20px 60px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.dark .goal-card-enhanced:hover {
+  background: rgba(30, 41, 59, 0.95);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255,255,255,0.2);
 }
 
 /* Enhanced task item styling */
@@ -432,7 +443,7 @@ body::before {
 
 /* Layout adjustments for fixed header */
 .main-content {
-  padding-top: 100px; /* Account for main header + extra clearance */
+  padding-top: 180px; /* Increased to move greeting further below navbar */
 }
 
 /* Animation delay utilities */
@@ -442,6 +453,54 @@ body::before {
 
 .delay-1000 {
   animation-delay: 1s;
+}
+
+/* Enhanced dark mode text visibility for cards */
+.dark .card-gradient h1,
+.dark .card-gradient h2,
+.dark .card-gradient h3,
+.dark .card-gradient h4,
+.dark .card-gradient h5,
+.dark .card-gradient h6 {
+  color: #f1f5f9 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.dark .card-gradient p,
+.dark .card-gradient span,
+.dark .card-gradient label,
+.dark .card-gradient div:not(.bg-*) {
+  color: #cbd5e1 !important;
+}
+
+.dark .card-gradient input {
+  background: rgba(30, 41, 59, 0.8) !important;
+  border-color: rgba(148, 163, 184, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .card-gradient input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.dark .card-gradient button {
+  color: #f1f5f9 !important;
+}
+
+.dark .goal-card-enhanced h1,
+.dark .goal-card-enhanced h2,
+.dark .goal-card-enhanced h3,
+.dark .goal-card-enhanced h4,
+.dark .goal-card-enhanced h5,
+.dark .goal-card-enhanced h6 {
+  color: #f1f5f9 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.dark .goal-card-enhanced p,
+.dark .goal-card-enhanced span,
+.dark .goal-card-enhanced label {
+  color: #cbd5e1 !important;
 }
 
 @tailwind base;
