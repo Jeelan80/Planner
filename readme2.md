@@ -1,3 +1,36 @@
+A User comes and Enters His Goal
+--Ai Provides Some Suggestions to Plan to Achive that goal
+ |
+ +--Like: You want a full fledged plan of duration provided
+ and it creates the full duration(Everyday Plan)
+ and if user wanna modify some where he can modify it 
+ and if its okay then an option to add it into the calendar for a track.
+ ---Ai Should scrap the youtube videos if possible and embed them to watch in the same platform.
+ ------------idea to scrap videos..
+ --------------ai will tell the instructions and a webscraper will manually scrap and show it.
+
+ some manual commands like this
+ Real-Life Use Cases
+“Learn Python in 20 days before internship interviews”
+
+“Finish 10 DSA topics in 15 days”
+
+“Lose 3kg in 30 days with 45min daily walks”
+
+“Finish college project in 10 days, 3hr per day”
+
+"I Have to Give a Speech in one Hour"
+
+Templates	Common goals like “Learn DSA,” “Lose Weight,” “Read Books”
+
+Remind Me Tomorrow	Checkbox to remind user next time tab is open (in local)
+
+IN Dashboard:  Goal Categories	Categorize goals: Fitness, Learning, Career, Habits
+
+Learning Mode	Inject YouTube/Blog resources based on goal type
+
+A Cool Motivational Dashboard with Updating Quotes
+
 ## 🧠 **Project Overview**
 
 > A **stateless, browser-based Goal Planner** built with **React + TypeScript** that allows users to:

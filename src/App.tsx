@@ -3,20 +3,40 @@
 import { useState } from 'react';
 import { Layout } from './components/layout/Layout';
 import { PlannerForm } from './components/forms/PlannerForm';
+import { AIGoalPlanner } from './components/forms/AIGoalPlanner';
+import { DetailedPlanViewer } from './components/forms/DetailedPlanViewer';
 import { GoalCard } from './components/planner/GoalCard';
 import { TaskItem } from './components/planner/TaskItem';
 import { Button } from './components/common/Button';
 import { Card } from './components/common/Card';
+import { FirstTimeSetup } from './components/common/FirstTimeSetup';
+import { PersonalizedWelcome } from './components/common/PersonalizedWelcome';
+import { AIGoalPlannerCard } from './components/dashboard/AIGoalPlannerCard';
 import { useGoals } from './hooks/useGoals';
 import { useTasks } from './hooks/useTasks';
+import { useUserPersonalization } from './hooks/useUserPersonalization';
 import { GoalFormData, Goal } from './types';
-import { Plus, Target, Calendar, CheckCircle } from 'lucide-react';
+import type { PlanningStrategy, GoalAnalysis } from './components/forms/AIGoalPlanner';
+import { Plus, Target, Calendar, CheckCircle, Brain } from 'lucide-react';
 
-type ViewMode = 'dashboard' | 'create-goal' | 'goals' | 'today';
+type ViewMode = 'dashboard' | 'create-goal' | 'ai-planner' | 'plan-viewer' | 'edit-goal' | 'goals' | 'today';
 
 function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+  const [selectedStrategy, setSelectedStrategy] = useState<PlanningStrategy | null>(null);
+  const [goalAnalysis, setGoalAnalysis] = useState<GoalAnalysis | null>(null);
+
+  // User personalization
+  const {
+    userName,
+    isFirstTime,
+    isEditingName,
+    getTimeBasedGreeting,
+    saveName,
+    startEditingName,
+    cancelEditingName,
+  } = useUserPersonalization();
 
   const { 
     goals, 
@@ -39,6 +59,34 @@ function App() {
   const handleCreateGoal = (goalData: GoalFormData) => {
     const newGoal = createGoal(goalData);
     generateTasksForGoal(newGoal);
+    setCurrentView('dashboard');
+  };
+
+  const handleAIPlanSelected = (strategy: PlanningStrategy, analysis: GoalAnalysis) => {
+    setSelectedStrategy(strategy);
+    setGoalAnalysis(analysis);
+    setCurrentView('plan-viewer');
+  };
+
+  const handleSaveAIPlan = (planData: { strategy: PlanningStrategy; analysis: GoalAnalysis }) => {
+    // Convert AI plan to GoalFormData format
+    const goalData: GoalFormData = {
+      title: planData.analysis.parsedGoal.title,
+      description: `AI Generated Plan: ${planData.strategy.name}\n\n${planData.strategy.description}`,
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date(Date.now() + planData.analysis.parsedGoal.timeframe * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      estimatedDailyTimeMinutes: planData.analysis.parsedGoal.dailyTime,
+      estimatedDailyTime: `${Math.floor(planData.analysis.parsedGoal.dailyTime / 60).toString().padStart(2, '0')}:${(planData.analysis.parsedGoal.dailyTime % 60).toString().padStart(2, '0')} AM`,
+      priority: 'medium' as const,
+      tags: ['AI Generated', planData.strategy.name],
+    };
+
+    const newGoal = createGoal(goalData);
+    generateTasksForGoal(newGoal);
+    
+    // Reset AI planner state
+    setSelectedStrategy(null);
+    setGoalAnalysis(null);
     setCurrentView('dashboard');
   };
 
@@ -93,15 +141,20 @@ function App() {
 
   const renderDashboard = () => (
     <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="text-center py-8">
-        <h2 className="text-4xl font-bold text-white mb-4">
-          Welcome to Your Goal Journey
-        </h2>
-        <p className="text-xl text-white/80 max-w-2xl mx-auto">
-          Transform your dreams into achievable milestones with our intelligent planning system
-        </p>
-      </div>
+      {/* Personalized Welcome Section */}
+      <PersonalizedWelcome
+        userName={userName}
+        greeting={getTimeBasedGreeting()}
+        isEditing={isEditingName}
+        onStartEdit={startEditingName}
+        onSaveName={saveName}
+        onCancelEdit={cancelEditingName}
+      />
+
+      {/* AI Goal Planner Card */}
+      <AIGoalPlannerCard
+        onStartAIPlanning={() => setCurrentView('ai-planner')}
+      />
 
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -148,6 +201,9 @@ function App() {
       <div className="flex space-x-4">
         <Button icon={Plus} onClick={() => setCurrentView('create-goal')}>
           Create New Goal
+        </Button>
+        <Button icon={Brain} onClick={() => setCurrentView('ai-planner')}>
+          AI Goal Planner
         </Button>
         <Button variant="outline" onClick={() => setCurrentView('today')}>
           View Today's Tasks
@@ -335,6 +391,9 @@ function App() {
 
   return (
     <Layout onSettingsClick={() => console.log('Settings clicked')}>
+      {/* First Time Setup Modal */}
+      {isFirstTime && <FirstTimeSetup onNameSubmit={saveName} />}
+
       {/* Navigation */}
       <div className="mb-8">
         <nav className="flex space-x-1 bg-gray-100 rounded-lg p-1">
@@ -364,6 +423,17 @@ function App() {
       {/* Main Content */}
       {currentView === 'dashboard' && renderDashboard()}
       {currentView === 'create-goal' && renderCreateGoal()}
+      {currentView === 'ai-planner' && (
+        <AIGoalPlanner onPlanSelected={handleAIPlanSelected} />
+      )}
+      {currentView === 'plan-viewer' && selectedStrategy && goalAnalysis && (
+        <DetailedPlanViewer
+          strategy={selectedStrategy}
+          analysis={goalAnalysis}
+          onSave={handleSaveAIPlan}
+          onBack={() => setCurrentView('ai-planner')}
+        />
+      )}
       {currentView === 'goals' && renderGoals()}
       {currentView === 'today' && renderTodaysTasks()}
     </Layout>

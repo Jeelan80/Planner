@@ -47,6 +47,36 @@ export const GoalCard: React.FC<GoalCardProps> = ({
     }
   };
 
+
+  // Helper to format date and time for calendar links
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  const getEventTimes = () => {
+    // Create start date at 9 AM local time
+    const startDate = new Date(goal.startDate);
+    const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 9, 0, 0);
+    
+    // Calculate end time based on estimated daily time
+    const duration = goal.estimatedDailyTimeMinutes || 60;
+    const end = new Date(start.getTime() + duration * 60000);
+    
+    // Google Calendar format: yyyyMMddTHHmmssZ (UTC)
+    const toGoogleUTC = (d: Date) => {
+      const utc = new Date(d.getTime() + d.getTimezoneOffset() * 60000);
+      return `${utc.getFullYear()}${pad(utc.getMonth() + 1)}${pad(utc.getDate())}T${pad(utc.getHours())}${pad(utc.getMinutes())}${pad(utc.getSeconds())}Z`;
+    };
+    
+    // Microsoft Calendar format: ISO string
+    const toMicrosoft = (d: Date) => d.toISOString().slice(0, 19);
+    
+    return {
+      googleStart: toGoogleUTC(start),
+      googleEnd: toGoogleUTC(end),
+      msStart: toMicrosoft(start),
+      msEnd: toMicrosoft(end)
+    };
+  };
+  const eventTimes = getEventTimes();
+
   return (
     <Card hover className="relative goal-card-enhanced">
       {/* Status indicator */}
@@ -141,7 +171,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
 
       {/* Actions */}
       <div className="flex justify-between items-center pt-4 border-t border-slate-300">
-        <div className="flex space-x-2">
+        <div className="flex flex-wrap gap-2 items-center">
           {onEdit && (
             <Button
               size="sm"
@@ -152,7 +182,6 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               Edit
             </Button>
           )}
-          
           {onToggleStatus && (
             <Button
               size="sm"
@@ -166,6 +195,26 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               {goal.status === 'active' ? 'Pause' : 'Resume'}
             </Button>
           )}
+
+          {/* Add to Calendar Buttons */}
+          <a
+            href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(goal.title)}&details=${encodeURIComponent(`${goal.description || ''}\n\nPriority: ${goal.priority}\nEstimated daily time: ${Math.floor(goal.estimatedDailyTimeMinutes / 60)}h ${goal.estimatedDailyTimeMinutes % 60}m`)}&dates=${eventTimes.googleStart}/${eventTimes.googleEnd}&location=${encodeURIComponent('Auto Goal Planner')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-green-100 text-green-800 hover:bg-green-200 transition-all border border-green-200 shadow-sm"
+            title="Add to Google Calendar"
+          >
+            <Calendar className="w-4 h-4 mr-1 text-green-600" /> Google Calendar
+          </a>
+          <a
+            href={`https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(goal.title)}&body=${encodeURIComponent(`${goal.description || ''}\n\nPriority: ${goal.priority}\nEstimated daily time: ${Math.floor(goal.estimatedDailyTimeMinutes / 60)}h ${goal.estimatedDailyTimeMinutes % 60}m`)}&startdt=${eventTimes.msStart}&enddt=${eventTimes.msEnd}&location=${encodeURIComponent('Auto Goal Planner')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-200 transition-all border border-blue-200 shadow-sm"
+            title="Add to Microsoft Calendar"
+          >
+            <Calendar className="w-4 h-4 mr-1 text-blue-600" /> Microsoft Calendar
+          </a>
         </div>
 
         {onDelete && (

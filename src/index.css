@@ -35,13 +35,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 .header-modern {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+  background: rgba(30, 41, 59, 0.85); /* solid dark with transparency */
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  font-weight: 700;
+  color: #1e293b;
   z-index: 10;
 }
 
@@ -94,22 +100,40 @@ body::before {
 }
 
 .card-glass {
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border-radius: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 8px 32px rgba(30, 41, 59, 0.18), 0 1px 0 rgba(255,255,255,0.3);
+  border-radius: 1.25rem;
+  border: 1.5px solid rgba(96, 165, 250, 0.18);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 2rem 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-glass:hover {
-  transform: translateY(-5px);
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 16px 48px rgba(30, 41, 59, 0.22), 0 1px 0 rgba(255,255,255,0.4);
+}
+
+.card-glass h2, .card-glass h3, .card-glass h4 {
+  color: #1e293b;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-glass p, .card-glass span, .card-glass li {
+  color: #334155;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-glass:hover p,
+.card-glass:hover span,
+.card-glass:hover li {
+  font-weight: 600;
+  color: #1e293b;
 }
 
 /* Enhanced goal card styling */
@@ -134,7 +158,7 @@ body::before {
 
 /* Enhanced task item styling */
 .task-item-enhanced {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.4);
   box-shadow: 
     0 6px 20px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.6),
@@ -287,6 +311,25 @@ body::before {
 .custom-priority-select:focus {
   outline: none;
   box-shadow: 0 0 0 2px #a78bfa;
+}
+
+/* Progress bar width utility */
+.progress-bar-width {
+  transition: width 0.3s ease-in-out;
+}
+
+/* Layout adjustments for fixed header */
+.main-content {
+  padding-top: 80px; /* Account for fixed header height */
+}
+
+/* Animation delay utilities */
+.delay-500 {
+  animation-delay: 0.5s;
+}
+
+.delay-1000 {
+  animation-delay: 1s;
 }
 
 @tailwind base;

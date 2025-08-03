@@ -60,7 +60,9 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
   const handleDateChange = (date: Date | null, field: 'startDate' | 'endDate') => {
     setFormData(prev => ({
       ...prev,
-      [field]: date ? date.toISOString().split('T')[0] : '',
+      [field]: date
+        ? `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+        : '',
     }));
   };
 
@@ -103,7 +105,7 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
         {/* Goal Title */}
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-            Goal Title *
+            <span className="text-gray-900">Goal Title *</span>
           </label>
           <input
             type="text"
@@ -120,7 +122,7 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
         {/* Description */}
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-            Description
+            <span className="text-gray-900">Description</span> <span className="ml-1 text-xs font-semibold text-purple-500 bg-purple-50 px-2 py-0.5 rounded">optional</span>
           </label>
           <textarea
             id="description"
@@ -137,7 +139,7 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
-              Start Date *
+            <span className="text-gray-900">Start Date *</span>
             </label>
             <DatePicker
               selected={formData.startDate ? new Date(formData.startDate) : new Date()}
@@ -157,7 +159,7 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
 
           <div>
             <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-2">
-              End Date *
+            <span className="text-gray-900">End Date *</span>
             </label>
             <DatePicker
               selected={formData.endDate ? new Date(formData.endDate) : null}
@@ -181,21 +183,21 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="estimatedDailyTime" className="block text-sm font-medium text-gray-700 mb-2">
-              <Clock className="w-4 h-4 inline mr-1" />
-              Daily Time *
+            <Clock className="w-4 h-4 inline mr-1 text-gray-900" />
+            <span className="text-gray-900">Daily Time *</span>
             </label>
             <TimePickerInput
               value={formData.estimatedDailyTime}
               onChange={handleTimeChange}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Selected: {formData.estimatedDailyTime}
+              <span className="block mt-00 text-sm font-semibold text-purple-700 bg-purple-50 px-2 py-1 rounded-lg shadow-sm">Selected: {formData.estimatedDailyTime}</span>
             </p>
           </div>
 
           <div>
             <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-2">
-              Priority
+            <span className="text-gray-900">Priority</span>
             </label>
             <div className="relative">
               <select
@@ -219,7 +221,7 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
         {/* Tags */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Tags
+            <span className="text-gray-900">Tags</span> <span className="ml-1 text-xs font-semibold text-purple-500 bg-purple-50 px-2 py-0.5 rounded">optional</span>
           </label>
           <div className="flex space-x-2 mb-2">
             <input
