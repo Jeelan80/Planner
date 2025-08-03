@@ -12,6 +12,7 @@ import { Card } from './components/common/Card';
 import { FirstTimeSetup } from './components/common/FirstTimeSetup';
 import { PersonalizedWelcome } from './components/common/PersonalizedWelcome';
 import { AIGoalPlannerCard } from './components/dashboard/AIGoalPlannerCard';
+import { GoalPlanningModal } from './components/dashboard/GoalPlanningModal';
 import { useGoals } from './hooks/useGoals';
 import { useTasks } from './hooks/useTasks';
 import { useUserPersonalization } from './hooks/useUserPersonalization';
@@ -23,6 +24,7 @@ type ViewMode = 'dashboard' | 'create-goal' | 'ai-planner' | 'plan-viewer' | 'ed
 
 function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
+  const [isGoalPlanningModalOpen, setIsGoalPlanningModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [selectedStrategy, setSelectedStrategy] = useState<PlanningStrategy | null>(null);
   const [goalAnalysis, setGoalAnalysis] = useState<GoalAnalysis | null>(null);
@@ -60,6 +62,25 @@ function App() {
     const newGoal = createGoal(goalData);
     generateTasksForGoal(newGoal);
     setCurrentView('dashboard');
+  };
+
+  const handleGoalPlanningModalStrategySelected = (strategy: PlanningStrategy, analysis: GoalAnalysis) => {
+    // Convert AI plan to GoalFormData format
+    const goalData: GoalFormData = {
+      title: analysis.parsedGoal.title,
+      description: `AI Generated Plan: ${strategy.name}\n\n${strategy.description}`,
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date(Date.now() + analysis.parsedGoal.timeframe * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      estimatedDailyTimeMinutes: analysis.parsedGoal.dailyTime,
+      estimatedDailyTime: `${Math.floor(analysis.parsedGoal.dailyTime / 60).toString().padStart(2, '0')}:${(analysis.parsedGoal.dailyTime % 60).toString().padStart(2, '0')} AM`,
+      priority: 'medium' as const,
+      tags: ['AI Generated', strategy.name],
+    };
+
+    const newGoal = createGoal(goalData);
+    generateTasksForGoal(newGoal);
+    
+    setIsGoalPlanningModalOpen(false);
   };
 
   const handleAIPlanSelected = (strategy: PlanningStrategy, analysis: GoalAnalysis) => {
@@ -113,7 +134,7 @@ function App() {
       ...editingGoal,
       ...goalData,
       startDate: new Date(goalData.startDate),
-      endDate: new Date(goalData.endDate)
+      endDate: new goalData.endDate)
     };
     generateTasksForGoal(updatedGoal);
     
@@ -394,6 +415,13 @@ function App() {
     <Layout onSettingsClick={() => console.log('Settings clicked')} onLogoClick={handleGoToDashboard}>
       {/* First Time Setup Modal */}
       {isFirstTime && <FirstTimeSetup onNameSubmit={saveName} />}
+
+      {/* Goal Planning Modal */}
+      <GoalPlanningModal
+        isOpen={isGoalPlanningModalOpen}
+        onClose={() => setIsGoalPlanningModalOpen(false)}
+        onStrategySelected={handleGoalPlanningModalStrategySelected}
+      />
 
       {/* Main Content */}
       {currentView === 'dashboard' && renderDashboard()}
