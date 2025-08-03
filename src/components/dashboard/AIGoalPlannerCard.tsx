@@ -30,8 +30,11 @@ interface GoalAnalysis {
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { Brain, Sparkles, Target, Clock, Zap } from 'lucide-react';
+import { GoalPlanningModal } from './GoalPlanningModal';
 
 export const AIGoalPlannerCard: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const examples = [
     "Learn Python in 20 days, 2 hrs/day",
     "Finish 10 DSA topics in 15 days",
@@ -40,110 +43,14 @@ export const AIGoalPlannerCard: React.FC = () => {
     "Finish 4 books in 30 days, 1hr/day",
   ];
 
-  // Local state for input and planning
-  const [goalInput, setGoalInput] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [analysis, setAnalysis] = useState<GoalAnalysis | null>(null);
-  const [error, setError] = useState<string>("");
-
-  // Mock AI analysis (same as in AIGoalPlanner)
-  const analyzeGoal = async (input: string) => {
-    setLoading(true);
-    setError("");
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    // Simple pattern matching
-    const timeframeMatch = input.match(/(\d+)\s*(days?|weeks?|months?|hours?)/i);
-    const dailyTimeMatch = input.match(/(\d+)\s*(hrs?|hours?|min|minutes?)/i);
-    const urgentMatch = input.match(/(urgent|today|tomorrow|hour|asap)/i);
-    const timeframe = timeframeMatch ? parseInt(timeframeMatch[1]) : 30;
-    const dailyTime = dailyTimeMatch ? parseInt(dailyTimeMatch[1]) : 2;
-    const isUrgent = !!urgentMatch;
-    let category = 'skill';
-    if (input.match(/(learn|study|python|javascript|coding|dsa|algorithm)/i)) category = 'learning';
-    if (input.match(/(lose|weight|kg|fitness|walk|exercise|gym)/i)) category = 'fitness';
-    if (input.match(/(project|assignment|college|work|complete)/i)) category = 'project';
-    if (input.match(/(speech|presentation|interview)/i)) category = 'urgent';
-    if (input.match(/(habit|daily|routine)/i)) category = 'habit';
-    const parsedGoal = {
-      title: input.replace(/in \d+.*$/i, '').trim(),
-      timeframe: isUrgent ? 1 : timeframe,
-      dailyTime: dailyTime * 60,
-      category,
-    };
-    // Strategies
-    const strategies = [];
-    strategies.push({
-      id: 'step-by-step',
-      name: 'Step-by-Step',
-      icon: Target,
-      description: 'Break your goal into fixed steps, spread evenly over time',
-      plan: Array.from({ length: parsedGoal.timeframe }, (_, i) => ({
-        day: i + 1,
-        task: `Day ${i + 1}: Focus on ${parsedGoal.title} - ${Math.floor(parsedGoal.dailyTime / 60)}h ${parsedGoal.dailyTime % 60}m`,
-        duration: parsedGoal.dailyTime,
-      })),
-      pros: ['Clear daily tasks', 'Easy to follow', 'Consistent progress'],
-      bestFor: 'Beginners and structured learners',
-    });
-    strategies.push({
-      id: 'time-blocked',
-      name: 'Time Blocked',
-      icon: Clock,
-      description: 'Dedicate fixed time blocks daily with focused sessions',
-      plan: Array.from({ length: parsedGoal.timeframe }, (_, i) => ({
-        day: i + 1,
-        task: `${(i + 1) % 7 === 0 || (i + 1) % 7 === 6 ? 'Weekend' : 'Weekday'} session: ${parsedGoal.title}`,
-        duration: ((i + 1) % 7 === 0 || (i + 1) % 7 === 6) ? Math.floor(parsedGoal.dailyTime * 0.7) : parsedGoal.dailyTime,
-      })),
-      pros: ['Habit building', 'Consistent schedule', 'Deep focus'],
-      bestFor: 'People with regular schedules',
-    });
-    strategies.push({
-      id: 'progressive',
-      name: 'Progressive Load',
-      icon: Sparkles,
-      description: 'Start light, gradually increase intensity over time',
-      plan: Array.from({ length: parsedGoal.timeframe }, (_, i) => {
-        const progress = (i + 1) / parsedGoal.timeframe;
-        const currentMinutes = Math.floor(parsedGoal.dailyTime * 0.5 + (parsedGoal.dailyTime * 0.5 * progress));
-        return {
-          day: i + 1,
-          task: `Progressive session ${i + 1}: ${parsedGoal.title}`,
-          duration: currentMinutes,
-        };
-      }),
-      pros: ['Builds momentum', 'Prevents burnout', 'Sustainable'],
-      bestFor: 'Long-term goals and habit formation',
-    });
-    if (timeframe > 7) {
-      strategies.push({
-        id: 'milestone',
-        name: 'Milestone-Oriented',
-        icon: Zap,
-        description: 'Set major checkpoints with mini-deadlines',
-        plan: Array.from({ length: parsedGoal.timeframe }, (_, i) => ({
-          day: i + 1,
-          task: (i + 1) % 5 === 0 ? `Milestone ${Math.ceil((i + 1) / 5)}: Review and assess progress` : `Work towards Milestone ${Math.ceil((i + 1) / 5)}: ${parsedGoal.title}`,
-          duration: parsedGoal.dailyTime,
-        })),
-        pros: ['Clear targets', 'Regular achievements', 'Motivation boost'],
-        bestFor: 'Goal-oriented achievers',
-      });
-    }
-    setAnalysis({ parsedGoal, strategies });
-    setLoading(false);
-  };
-
-  const handlePlan = async () => {
-    if (!goalInput.trim()) {
-      setError('Please enter your goal.');
-      return;
-    }
-    await analyzeGoal(goalInput.trim());
+  const handleStrategySelected = (strategy: any, analysis: any) => {
+    console.log('Strategy selected:', strategy, analysis);
+    // This will be handled by the parent component later
   };
 
   return (
-    <Card className="relative overflow-hidden mx-auto w-full max-w-3xl min-h-[600px] flex flex-col justify-start items-center p-10 rounded-3xl shadow-2xl border-2 border-purple-300 card-gradient mt-32">
+    <>
+      <Card className="relative overflow-hidden mx-auto w-full max-w-3xl min-h-[600px] flex flex-col justify-start items-center p-10 rounded-3xl shadow-2xl border-2 border-purple-300 card-gradient mt-32">
       {/* Background decorative elements */}
       <div className="absolute top-0 right-0 w-32 h-32 opacity-10 pointer-events-none">
         <div className="absolute top-4 right-4 w-8 h-8 bg-blue-500 rounded-full animate-pulse"></div>
@@ -162,23 +69,16 @@ export const AIGoalPlannerCard: React.FC = () => {
               <span>What's Your Goal?</span>
               <Sparkles className="w-6 h-6 text-purple-400 dark:text-purple-300" />
             </h3>
-            <input
-              type="text"
-              value={goalInput}
-              onChange={e => setGoalInput(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-purple-400 dark:border-purple-500 focus:ring-2 focus:ring-purple-300 dark:focus:ring-purple-400 text-base text-white dark:text-white bg-slate-800/60 dark:bg-slate-700/60 mb-2 shadow-sm placeholder-slate-400 dark:placeholder-slate-300"
-              placeholder="Finish 4 books in 30 days, 1hr/day"
-              disabled={loading}
-            />
+            <p className="text-white/80 mb-4 text-center">
+              Click below to open our AI-powered goal planning assistant
+            </p>
             <Button
-              onClick={handlePlan}
+              onClick={() => setIsModalOpen(true)}
               className="btn-gradient text-white font-semibold py-2 px-6 text-base shadow-lg hover:shadow-xl transition-all duration-300 w-full"
               icon={Brain}
-              disabled={loading}
             >
-              {loading ? 'Planning...' : 'Plan My Goal'}
+              Plan My Goal
             </Button>
-            {error && <p className="text-red-500 dark:text-red-400 mt-2 text-sm">{error}</p>}
           </div>
         </div>
 
@@ -228,41 +128,15 @@ export const AIGoalPlannerCard: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Show planning strategies if available */}
-        {analysis && (
-          <Card className="mt-8 mx-auto max-w-3xl p-6 rounded-2xl shadow-lg border border-purple-200 card-gradient w-full">
-            <h4 className="text-xl font-bold text-purple-400 dark:text-purple-300 mb-4 text-center">Suggested Planning Strategies</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {analysis.strategies.map((strategy: PlanningStrategy) => (
-                <div key={strategy.id} className="border border-purple-400 dark:border-purple-500 rounded-xl p-4 bg-slate-800/60 dark:bg-slate-700/60 shadow-sm flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center space-x-2 mb-2">
-                      <strategy.icon className="w-5 h-5 text-purple-500" />
-                      <span className="text-lg font-semibold text-purple-300 dark:text-purple-200">{strategy.name}</span>
-                    </div>
-                    <p className="text-slate-300 dark:text-slate-200 mb-2">{strategy.description}</p>
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {strategy.pros.map((pro: string, idx: number) => (
-                        <span key={idx} className="bg-purple-900/50 dark:bg-purple-800/50 text-purple-300 dark:text-purple-200 px-2 py-1 rounded text-xs font-medium">{pro}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <span className="text-xs text-slate-400 dark:text-slate-300 mb-2">Best for: {strategy.bestFor}</span>
-                  <details className="mt-3">
-                    <summary className="cursor-pointer text-purple-400 dark:text-purple-300 font-semibold">View Daily Plan</summary>
-                    <ul className="mt-2 space-y-1 text-sm">
-                      {strategy.plan.map((task: DailyTask, idx: number) => (
-                        <li key={idx} className="pl-2 text-slate-300 dark:text-slate-200">{task.task} <span className="text-slate-500 dark:text-slate-400">({Math.floor(task.duration / 60)}h {task.duration % 60}m)</span></li>
-                      ))}
-                    </ul>
-                  </details>
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
       </div>
-    </Card>
+      </Card>
+
+      {/* Goal Planning Modal */}
+      <GoalPlanningModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onStrategySelected={handleStrategySelected}
+      />
+    </>
   );
 };
