@@ -143,7 +143,7 @@ export const AIGoalPlannerCard: React.FC = () => {
   };
 
   return (
-    <Card className="relative overflow-hidden mx-auto max-w-2xl min-h-[600px] flex flex-col justify-start items-center p-8 rounded-3xl shadow-2xl border-2 border-purple-300 card-gradient mt-48">
+    <Card className="relative overflow-hidden mx-auto w-full max-w-3xl min-h-[600px] flex flex-col justify-start items-center p-10 rounded-3xl shadow-2xl border-2 border-purple-300 card-gradient mt-32">
       {/* Background decorative elements */}
       <div className="absolute top-0 right-0 w-32 h-32 opacity-10 pointer-events-none">
         <div className="absolute top-4 right-4 w-8 h-8 bg-blue-500 rounded-full animate-pulse"></div>
@@ -205,26 +205,26 @@ export const AIGoalPlannerCard: React.FC = () => {
         </div>
 
         {/* AI features highlight */}
-        <div className="bg-slate-800/60 dark:bg-slate-700/60 rounded-lg p-4 mb-6 border border-purple-400 dark:border-purple-500 max-w-md mx-auto w-full">
-          <div className="flex items-center space-x-2 mb-2">
-            <Zap className="w-4 h-4 text-purple-500" />
-            <span className="text-sm font-semibold text-purple-300 dark:text-purple-200">AI will analyze and suggest multiple planning strategies</span>
+        <div className="ai-planning-card mb-6">
+          <div className="ai-planning-card-title flex items-center gap-2 mb-2">
+            <Zap className="w-5 h-5 text-purple-400" />
+            AI will analyze and suggest multiple planning strategies
           </div>
-          <div className="grid grid-cols-2 gap-2 text-xs text-purple-400 dark:text-purple-300">
-            <div className="flex items-center space-x-1">
-              <Clock className="w-3 h-3" />
+          <div className="ai-planning-card-list">
+            <div className="ai-planning-card-list-item">
+              <Clock className="w-4 h-4 text-purple-300" />
               <span>Time optimization</span>
             </div>
-            <div className="flex items-center space-x-1">
-              <Target className="w-3 h-3" />
+            <div className="ai-planning-card-list-item">
+              <Target className="w-4 h-4 text-purple-300" />
               <span>Goal breakdown</span>
             </div>
-            <div className="flex items-center space-x-1">
-              <Sparkles className="w-3 h-3" />
+            <div className="ai-planning-card-list-item">
+              <Sparkles className="w-4 h-4 text-purple-300" />
               <span>Smart scheduling</span>
             </div>
-            <div className="flex items-center space-x-1">
-              <Brain className="w-3 h-3" />
+            <div className="ai-planning-card-list-item">
+              <Brain className="w-4 h-4 text-purple-300" />
               <span>Strategy suggestions</span>
             </div>
           </div>

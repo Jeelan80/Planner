@@ -142,14 +142,16 @@ function App() {
   const renderDashboard = () => (
     <div className="space-y-8">
       {/* Personalized Welcome Section */}
-      <PersonalizedWelcome
-        userName={userName}
-        greeting={getTimeBasedGreeting()}
-        isEditing={isEditingName}
-        onStartEdit={startEditingName}
-        onSaveName={saveName}
-        onCancelEdit={cancelEditingName}
-      />
+      <div>
+        <PersonalizedWelcome
+          userName={userName}
+          greeting={getTimeBasedGreeting()}
+          isEditing={isEditingName}
+          onStartEdit={startEditingName}
+          onSaveName={saveName}
+          onCancelEdit={cancelEditingName}
+        />
+      </div>
 
       {/* AI Goal Planner Card */}
       <AIGoalPlannerCard />
@@ -387,8 +389,9 @@ function App() {
     );
   }
 
+  const handleGoToDashboard = () => setCurrentView('dashboard');
   return (
-    <Layout onSettingsClick={() => console.log('Settings clicked')}>
+    <Layout onSettingsClick={() => console.log('Settings clicked')} onLogoClick={handleGoToDashboard}>
       {/* First Time Setup Modal */}
       {isFirstTime && <FirstTimeSetup onNameSubmit={saveName} />}
 

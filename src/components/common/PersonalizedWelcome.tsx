@@ -52,7 +52,7 @@ export const PersonalizedWelcome: React.FC<PersonalizedWelcomeProps> = ({
   };
 
   return (
-    <div className="text-center py-8">
+    <div className="text-center py-2">
       {/* Greeting */}
       <p className="text-xl text-white/90 mb-2 font-medium">
         {greeting}!
