@@ -25,7 +25,7 @@ interface ParsedGoal {
   title: string;
   timeframe: number;
   dailyTime: number;
-  category: string;
+  category: 'learning' | 'fitness' | 'project' | 'skill' | 'habit' | 'urgent';
 }
 
 interface GoalAnalysis {
@@ -48,6 +48,8 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<GoalAnalysis | null>(null);
   const [error, setError] = useState('');
+  const [viewingStrategy, setViewingStrategy] = useState<PlanningStrategy | null>(null);
+  const [editablePlan, setEditablePlan] = useState<DailyTask[]>([]);
 
   const examples = [
     "Learn Python in 20 days, 2 hrs/day",
@@ -86,7 +88,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
         title: input.replace(/in \d+.*$/i, '').trim(),
         timeframe: isUrgent ? 1 : timeframe,
         dailyTime: dailyTime * 60,
-        category,
+        category: category as 'learning' | 'fitness' | 'project' | 'skill' | 'habit' | 'urgent',
       };
 
       // Generate strategies
@@ -155,7 +157,9 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
       }
 
       setAnalysis({ parsedGoal, strategies });
-    } catch (err) {
+      setViewingStrategy(null);
+      setEditablePlan([]);
+    } catch {
       setError('Failed to analyze goal. Please try again.');
     } finally {
       setLoading(false);
@@ -177,10 +181,42 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
     }
   };
 
+  const handleViewPlan = (strategy: PlanningStrategy) => {
+    setViewingStrategy(strategy);
+    setEditablePlan([...strategy.plan]);
+  };
+
+  const handleBackToStrategies = () => {
+    setViewingStrategy(null);
+    setEditablePlan([]);
+  };
+
+  const handleTaskEdit = (index: number, newTask: string) => {
+    const updatedPlan = [...editablePlan];
+    updatedPlan[index] = { ...updatedPlan[index], task: newTask };
+    setEditablePlan(updatedPlan);
+  };
+
+  const handleTaskDurationEdit = (index: number, newDuration: number) => {
+    const updatedPlan = [...editablePlan];
+    updatedPlan[index] = { ...updatedPlan[index], duration: newDuration };
+    setEditablePlan(updatedPlan);
+  };
+
+  const handleUseEditedPlan = () => {
+    if (viewingStrategy && analysis) {
+      const updatedStrategy = { ...viewingStrategy, plan: editablePlan };
+      onStrategySelected(updatedStrategy, analysis);
+      onClose();
+    }
+  };
+
   const handleClose = () => {
     setGoalInput('');
     setAnalysis(null);
     setError('');
+    setViewingStrategy(null);
+    setEditablePlan([]);
     onClose();
   };
 
@@ -342,17 +378,134 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                           </p>
                         </div>
 
-                        {/* Action Button */}
-                        <Button
-                          onClick={() => handleStrategySelect(strategy)}
-                          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                        >
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Use This Strategy
-                        </Button>
+                        {/* Action Buttons */}
+                        <div className="space-y-2">
+                          <Button
+                            onClick={() => handleViewPlan(strategy)}
+                            className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                          >
+                            <Target className="w-4 h-4 mr-2" />
+                            View Plan
+                          </Button>
+                          <Button
+                            onClick={() => handleStrategySelect(strategy)}
+                            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                          >
+                            <Calendar className="w-4 h-4 mr-2" />
+                            Use This Strategy
+                          </Button>
+                        </div>
                       </div>
                     </Card>
                   ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Detailed Plan Viewer */}
+          {viewingStrategy && analysis && (
+            <div className="space-y-6">
+              {/* Header with Back Button */}
+              <div className="flex items-center space-x-4">
+                <Button
+                  onClick={handleBackToStrategies}
+                  className="flex items-center space-x-2 bg-gray-500 hover:bg-gray-600"
+                >
+                  <span>←</span>
+                  <span>Back to Strategies</span>
+                </Button>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <viewingStrategy.icon className="w-6 h-6 mr-2 text-purple-500" />
+                    {viewingStrategy.name} - Detailed Plan
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Goal: {analysis.parsedGoal.title} | {analysis.parsedGoal.timeframe} days | {Math.floor(analysis.parsedGoal.dailyTime / 60)}h {analysis.parsedGoal.dailyTime % 60}m daily
+                  </p>
+                </div>
+              </div>
+
+              {/* Plan Details */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Scrollable Plan List */}
+                <div className="lg:col-span-2">
+                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                      <h4 className="font-semibold text-gray-900 dark:text-white flex items-center">
+                        📋 Daily Tasks (Editable)
+                      </h4>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto p-4 space-y-3">
+                      {editablePlan.map((task, index) => (
+                        <div key={index} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-sm text-gray-700 dark:text-gray-300">
+                              Day {task.day}
+                            </span>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="number"
+                                value={Math.floor(task.duration / 60)}
+                                onChange={(e) => handleTaskDurationEdit(index, parseInt(e.target.value) * 60)}
+                                className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                min="0"
+                                title={`Duration for day ${task.day}`}
+                                placeholder="Hours"
+                              />
+                              <span className="text-xs text-gray-500 dark:text-gray-400">hours</span>
+                            </div>
+                          </div>
+                          <textarea
+                            value={task.task}
+                            onChange={(e) => handleTaskEdit(index, e.target.value)}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+                            rows={2}
+                            title={`Task for day ${task.day}`}
+                            placeholder="Enter task description..."
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Strategy Info Sidebar */}
+                <div className="space-y-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                    <h5 className="font-semibold text-gray-900 dark:text-white mb-3">Strategy Benefits</h5>
+                    <ul className="space-y-2">
+                      {viewingStrategy.pros.map((pro, index) => (
+                        <li key={index} className="text-sm text-gray-700 dark:text-gray-300 flex items-center">
+                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2 flex-shrink-0"></span>
+                          {pro}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 p-4">
+                    <h5 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">Best For</h5>
+                    <p className="text-sm text-blue-800 dark:text-blue-400">
+                      {viewingStrategy.bestFor}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Button
+                      onClick={handleUseEditedPlan}
+                      className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Use This Plan
+                    </Button>
+                    <Button
+                      onClick={handleBackToStrategies}
+                      className="w-full bg-gray-500 hover:bg-gray-600"
+                    >
+                      Choose Different Strategy
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -134,7 +134,7 @@ function App() {
       ...editingGoal,
       ...goalData,
       startDate: new Date(goalData.startDate),
-      endDate: new goalData.endDate)
+      endDate: new Date(goalData.endDate),
     };
     generateTasksForGoal(updatedGoal);
     

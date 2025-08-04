@@ -1,6 +1,10 @@
 // AI Goal Planner card component for the dashboard
 
 import React, { useState } from 'react';
+import { Card } from '../common/Card';
+import { Button } from '../common/Button';
+import { Brain, Sparkles, Target, Clock, Zap } from 'lucide-react';
+import { GoalPlanningModal } from './GoalPlanningModal';
 // Type definitions for AI planner
 interface DailyTask {
   day: number;
@@ -18,20 +22,7 @@ interface PlanningStrategy {
   bestFor: string;
 }
 
-interface GoalAnalysis {
-  parsedGoal: {
-    title: string;
-    timeframe: number;
-    dailyTime: number;
-    category: string;
-  };
-  strategies: PlanningStrategy[];
-}
-import { Card } from '../common/Card';
-import { Button } from '../common/Button';
-import { Brain, Sparkles, Target, Clock, Zap } from 'lucide-react';
-import { GoalPlanningModal } from './GoalPlanningModal';
-
+// Removed unused GoalAnalysis interface
 export const AIGoalPlannerCard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -43,7 +34,8 @@ export const AIGoalPlannerCard: React.FC = () => {
     "Finish 4 books in 30 days, 1hr/day",
   ];
 
-  const handleStrategySelected = (strategy: any, analysis: any) => {
+  // Use correct types for strategy and analysis
+  const handleStrategySelected = (strategy: PlanningStrategy, analysis: { parsedGoal: { title: string; timeframe: number; dailyTime: number; category: string; }; strategies: PlanningStrategy[] }) => {
     console.log('Strategy selected:', strategy, analysis);
     // This will be handled by the parent component later
   };
@@ -94,7 +86,6 @@ export const AIGoalPlannerCard: React.FC = () => {
                 type="button"
                 key={index}
                 className="bg-slate-800/60 dark:bg-slate-700/60 border border-purple-400 dark:border-purple-500 rounded-2xl px-2 py-1 shadow-sm flex items-center space-x-1 text-xs min-w-[120px] max-w-[180px] justify-center cursor-pointer transition hover:bg-slate-700/80 dark:hover:bg-slate-600/80 focus:outline-none focus:ring-2 focus:ring-purple-300"
-                onClick={() => setGoalInput(example)}
                 aria-label={`Fill input with example: ${example}`}
               >
                 <span className="text-slate-300 dark:text-slate-200 font-medium">"{example}"</span>
@@ -139,4 +130,4 @@ export const AIGoalPlannerCard: React.FC = () => {
       />
     </>
   );
-};
+}
