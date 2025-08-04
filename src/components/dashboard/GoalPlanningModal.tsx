@@ -59,108 +59,134 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
     "Finish 4 books in 30 days, 1hr/day",
   ];
 
-  // Mock AI analysis function
+  // Real API call to backend
   const analyzeGoal = async (input: string) => {
     setLoading(true);
     setError('');
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1200));
-
     try {
-      // Simple pattern matching
-      const timeframeMatch = input.match(/(\d+)\s*(days?|weeks?|months?|hours?)/i);
-      const dailyTimeMatch = input.match(/(\d+)\s*(hrs?|hours?|min|minutes?)/i);
-      const urgentMatch = input.match(/(urgent|today|tomorrow|hour|asap)/i);
-
-      const timeframe = timeframeMatch ? parseInt(timeframeMatch[1]) : 30;
-      const dailyTime = dailyTimeMatch ? parseInt(dailyTimeMatch[1]) : 2;
-      const isUrgent = !!urgentMatch;
-
-      let category = 'skill';
-      if (input.match(/(learn|study|python|javascript|coding|dsa|algorithm)/i)) category = 'learning';
-      if (input.match(/(lose|weight|kg|fitness|walk|exercise|gym)/i)) category = 'fitness';
-      if (input.match(/(project|assignment|college|work|complete)/i)) category = 'project';
-      if (input.match(/(speech|presentation|interview)/i)) category = 'urgent';
-      if (input.match(/(habit|daily|routine)/i)) category = 'habit';
-
+      // Use relative URL - Vite proxy will route to backend
+      const response = await fetch('/generate-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goal: input })
+      });
+      let data;
+      // Check for empty response
+      const text = await response.text();
+      if (!response.ok) {
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch {
+          throw new Error('Failed to generate plan (invalid response from server)');
+        }
+        throw new Error((data && data.error) || 'Failed to generate plan');
+      }
+      if (!text) {
+        throw new Error('Server returned empty response. Please try again later.');
+      }
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error('Server returned invalid JSON. Please try again later.');
+      }
+      if (!data || Object.keys(data).length === 0) {
+        throw new Error('Server returned empty plan. Please try again later.');
+      }
+      // Transform backend response to frontend format with proper validation
       const parsedGoal = {
-        title: input.replace(/in \d+.*$/i, '').trim(),
-        timeframe: isUrgent ? 1 : timeframe,
-        dailyTime: dailyTime * 60,
-        category: category as 'learning' | 'fitness' | 'project' | 'skill' | 'habit' | 'urgent',
+        title: data.title || 'My Goal',
+        timeframe: parseInt(data.duration) || 30, // Default to 30 days if NaN
+        dailyTime: parseInt(data.dailyTime) || 120, // Default to 120 minutes if NaN
+        category: 'skill' as 'learning' | 'fitness' | 'project' | 'skill' | 'habit' | 'urgent',
       };
-
-      // Generate strategies
+      // Map backend strategies to frontend format
       const strategies: PlanningStrategy[] = [];
-
-      strategies.push({
-        id: 'step-by-step',
-        name: 'Step-by-Step',
-        icon: Target,
-        description: 'Break your goal into fixed steps, spread evenly over time',
-        plan: Array.from({ length: parsedGoal.timeframe }, (_, i) => ({
-          day: i + 1,
-          task: `Day ${i + 1}: Focus on ${parsedGoal.title} - ${Math.floor(parsedGoal.dailyTime / 60)}h ${parsedGoal.dailyTime % 60}m`,
-          duration: parsedGoal.dailyTime,
-        })),
-        pros: ['Clear daily tasks', 'Easy to follow', 'Consistent progress'],
-        bestFor: 'Beginners and structured learners',
-      });
-
-      strategies.push({
-        id: 'time-blocked',
-        name: 'Time Blocked',
-        icon: Clock,
-        description: 'Dedicate fixed time blocks daily with focused sessions',
-        plan: Array.from({ length: parsedGoal.timeframe }, (_, i) => ({
-          day: i + 1,
-          task: `${(i + 1) % 7 === 0 || (i + 1) % 7 === 6 ? 'Weekend' : 'Weekday'} session: ${parsedGoal.title}`,
-          duration: ((i + 1) % 7 === 0 || (i + 1) % 7 === 6) ? Math.floor(parsedGoal.dailyTime * 0.7) : parsedGoal.dailyTime,
-        })),
-        pros: ['Habit building', 'Consistent schedule', 'Deep focus'],
-        bestFor: 'People with regular schedules',
-      });
-
-      strategies.push({
-        id: 'progressive',
-        name: 'Progressive Load',
-        icon: TrendingUp,
-        description: 'Start light, gradually increase intensity over time',
-        plan: Array.from({ length: parsedGoal.timeframe }, (_, i) => {
-          const progress = (i + 1) / parsedGoal.timeframe;
-          const currentMinutes = Math.floor(parsedGoal.dailyTime * 0.5 + (parsedGoal.dailyTime * 0.5 * progress));
-          return {
-            day: i + 1,
-            task: `Progressive session ${i + 1}: ${parsedGoal.title}`,
-            duration: currentMinutes,
-          };
-        }),
-        pros: ['Builds momentum', 'Prevents burnout', 'Sustainable'],
-        bestFor: 'Long-term goals and habit formation',
-      });
-
-      if (timeframe > 7) {
+      if (data.strategies?.stepByStep) {
+        strategies.push({
+          id: 'step-by-step',
+          name: 'Step-by-Step',
+          icon: Target,
+          description: 'Break your goal into fixed steps, spread evenly over time',
+          plan: (data.strategies.stepByStep as Array<{ day?: number; week?: number; task?: string; focus?: string; minutes?: string|number }>).
+            map(item => ({
+              day: item.day || item.week || 1,
+              task: item.task || item.focus || '',
+              duration: item.minutes ? (typeof item.minutes === 'string' ? parseInt(item.minutes) || parsedGoal.dailyTime : item.minutes) : parsedGoal.dailyTime
+            })),
+          pros: ['Clear daily tasks', 'Easy to follow', 'Consistent progress'],
+          bestFor: 'Beginners and structured learners',
+        });
+      }
+      if (data.strategies?.progressiveLoad) {
+        strategies.push({
+          id: 'progressive',
+          name: 'Progressive Load',
+          icon: TrendingUp,
+          description: 'Start light, gradually increase intensity over time',
+          plan: (data.strategies.progressiveLoad as Array<{ day?: number; week?: number; focus?: string; task?: string; minutes?: string|number }>).
+            map(item => ({
+              day: item.day || item.week || 1,
+              task: item.task || item.focus || '',
+              duration: item.minutes ? (typeof item.minutes === 'string' ? parseInt(item.minutes) || parsedGoal.dailyTime : item.minutes) : parsedGoal.dailyTime
+            })),
+          pros: ['Builds momentum', 'Prevents burnout', 'Sustainable'],
+          bestFor: 'Long-term goals and habit formation',
+        });
+      }
+      if (data.strategies?.milestoneBased) {
         strategies.push({
           id: 'milestone',
           name: 'Milestone-Oriented',
           icon: Zap,
           description: 'Set major checkpoints with mini-deadlines',
-          plan: Array.from({ length: parsedGoal.timeframe }, (_, i) => ({
-            day: i + 1,
-            task: (i + 1) % 5 === 0 ? `Milestone ${Math.ceil((i + 1) / 5)}: Review and assess progress` : `Work towards Milestone ${Math.ceil((i + 1) / 5)}: ${parsedGoal.title}`,
-            duration: parsedGoal.dailyTime,
-          })),
+          plan: (data.strategies.milestoneBased as Array<{ day?: number; due?: string; milestone?: string; task?: string; minutes?: string|number }>).
+            map(item => ({
+              day: item.day || (item.due ? parseInt(item.due.replace(/\D/g, '')) || 1 : 1),
+              task: item.milestone ? `${item.milestone}: ${item.task || ''}` : (item.task || ''),
+              duration: item.minutes ? (typeof item.minutes === 'string' ? parseInt(item.minutes) || parsedGoal.dailyTime : item.minutes) : parsedGoal.dailyTime
+            })),
           pros: ['Clear targets', 'Regular achievements', 'Motivation boost'],
           bestFor: 'Goal-oriented achievers',
         });
       }
-
+      // Time Blocked strategy is handled on frontend with more detailed planning
+      strategies.push({
+        id: 'time-blocked',
+        name: 'Time Blocked',
+        icon: Clock,
+        description: 'Dedicate fixed time blocks daily with focused sessions',
+        plan: Array.from({ length: parsedGoal.timeframe }, (_, i) => {
+          const day = i + 1;
+          const isWeekend = day % 7 === 0 || day % 7 === 6;
+          const weekNumber = Math.ceil(day / 7);
+          
+          let taskDescription;
+          if (parsedGoal.title.toLowerCase().includes('python') || parsedGoal.title.toLowerCase().includes('coding')) {
+            if (day <= 5) taskDescription = `Foundation: Setup environment, basics, syntax`;
+            else if (day <= 10) taskDescription = `Core concepts: Data structures, functions, OOP`;
+            else taskDescription = `Advanced: Projects, debugging, best practices`;
+          } else if (parsedGoal.title.toLowerCase().includes('dsa')) {
+            if (day <= 5) taskDescription = `Arrays & Strings: Theory + 3-5 problems`;
+            else if (day <= 10) taskDescription = `Trees & Graphs: Implementation + practice`;
+            else taskDescription = `Dynamic Programming: Complex problems`;
+          } else {
+            taskDescription = `Week ${weekNumber} focus: ${parsedGoal.title}`;
+          }
+          
+          return {
+            day,
+            task: `${isWeekend ? 'Weekend' : 'Weekday'} session: ${taskDescription}`,
+            duration: isWeekend ? Math.floor(parsedGoal.dailyTime * 0.7) : parsedGoal.dailyTime,
+          };
+        }),
+        pros: ['Habit building', 'Consistent schedule', 'Deep focus'],
+        bestFor: 'People with regular schedules',
+      });
       setAnalysis({ parsedGoal, strategies });
       setViewingStrategy(null);
       setEditablePlan([]);
-    } catch {
-      setError('Failed to analyze goal. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to analyze goal. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -66,7 +66,7 @@ export const DetailedPlanViewer: React.FC<DetailedPlanViewerProps> = ({
   const progressBarRef = useRef<HTMLDivElement>(null);
 
   const completedTasks = tasks.filter(task => task.completed).length;
-  const progressPercentage = Math.round((completedTasks / tasks.length) * 100);
+  const progressPercentage = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
 
   useEffect(() => {
     if (progressBarRef.current) {
@@ -153,12 +153,12 @@ export const DetailedPlanViewer: React.FC<DetailedPlanViewerProps> = ({
             </div>
             <div>
               <span className="text-sm font-medium text-gray-600">Duration</span>
-              <p className="font-semibold text-gray-900">{analysis.parsedGoal.timeframe} days</p>
+              <p className="font-semibold text-gray-900">{isNaN(analysis.parsedGoal.timeframe) ? 30 : analysis.parsedGoal.timeframe} days</p>
             </div>
             <div>
               <span className="text-sm font-medium text-gray-600">Daily Time</span>
               <p className="font-semibold text-gray-900">
-                {Math.floor(analysis.parsedGoal.dailyTime / 60)}h {analysis.parsedGoal.dailyTime % 60}m
+                {isNaN(analysis.parsedGoal.dailyTime) ? '2h 0m' : `${Math.floor(analysis.parsedGoal.dailyTime / 60)}h ${analysis.parsedGoal.dailyTime % 60}m`}
               </p>
             </div>
             <div>
@@ -173,7 +173,7 @@ export const DetailedPlanViewer: React.FC<DetailedPlanViewerProps> = ({
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-gray-900">Progress Overview</h3>
             <span className="text-sm font-medium text-gray-600">
-              {completedTasks}/{tasks.length} tasks ({Math.round(progressPercentage)}%)
+              {completedTasks}/{tasks.length} tasks ({isNaN(progressPercentage) ? 0 : Math.round(progressPercentage)}%)
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">
