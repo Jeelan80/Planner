@@ -113,7 +113,7 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
             name="title"
             value={formData.title}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white font-medium transition-all duration-200"
             placeholder="What do you want to achieve?"
             required
           />
@@ -130,7 +130,7 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
             value={formData.description}
             onChange={handleInputChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white font-medium transition-all duration-200 resize-none"
             placeholder="Describe your goal in detail..."
           />
         </div>
@@ -148,7 +148,7 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
               startDate={formData.startDate ? new Date(formData.startDate) : new Date()}
               endDate={formData.endDate ? new Date(formData.endDate) : null}
               dateFormat="yyyy-MM-dd"
-              className="date-picker-enhanced w-full pl-10 pr-10 py-2 border border-blue-200 rounded-xl shadow focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-white/60 backdrop-blur-md text-slate-900 font-semibold"
+              className="date-picker-enhanced w-full pl-4 pr-10 py-3"
               placeholderText="Select start date"
               showPopperArrow={false}
               popperClassName="date-picker-popper"
@@ -169,7 +169,7 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
               endDate={formData.endDate ? new Date(formData.endDate) : null}
               minDate={formData.startDate ? new Date(formData.startDate) : new Date()}
               dateFormat="yyyy-MM-dd"
-              className="date-picker-enhanced w-full pl-10 pr-10 py-2 border border-blue-200 rounded-xl shadow focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-white/60 backdrop-blur-md text-slate-900 font-semibold"
+              className="date-picker-enhanced w-full pl-4 pr-10 py-3"
               placeholderText="Select end date"
               showPopperArrow={false}
               popperClassName="date-picker-popper"
@@ -191,7 +191,7 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
               onChange={handleTimeChange}
             />
             <p className="text-xs text-gray-500 mt-1">
-              <span className="block mt-00 text-sm font-semibold text-purple-700 bg-purple-50 px-2 py-1 rounded-lg shadow-sm">Selected: {formData.estimatedDailyTime}</span>
+              <span className="block mt-2 text-sm font-semibold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/30 px-3 py-2 rounded-lg shadow-sm border border-purple-200 dark:border-purple-700">Selected: {formData.estimatedDailyTime}</span>
             </p>
           </div>
 
@@ -205,14 +205,14 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
                 name="priority"
                 value={formData.priority}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 rounded-xl border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-900 font-semibold shadow focus:ring-4 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200 appearance-none pr-10 custom-priority-select"
+                className="custom-priority-select w-full px-4 py-3 font-semibold shadow focus:ring-4 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200 appearance-none pr-12"
               >
-                <option value="low" className="text-green-600 font-bold">🟢 Low</option>
-                <option value="medium" className="text-yellow-600 font-bold">🟡 Medium</option>
-                <option value="high" className="text-red-600 font-bold">🔴 High</option>
+                <option value="low" className="font-bold">🟢 Low Priority</option>
+                <option value="medium" className="font-bold">🟡 Medium Priority</option>
+                <option value="high" className="font-bold">🔴 High Priority</option>
               </select>
-              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400"><path d="M6 9l6 6 6-6"/></svg>
+              <span className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400"><path d="M6 9l6 6 6-6"/></svg>
               </span>
             </div>
           </div>
@@ -229,7 +229,7 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyPress={handleTagKeyPress}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="flex-1 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white font-medium transition-all duration-200"
               placeholder="Add a tag..."
             />
             <Button type="button" onClick={addTag} variant="outline" size="sm">
@@ -238,17 +238,17 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
           </div>
           
           {formData.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-3">
               {formData.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-md"
+                  className="inline-flex items-center px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-lg font-semibold border border-blue-200 dark:border-blue-700"
                 >
                   {tag}
                   <button
                     type="button"
                     onClick={() => removeTag(tag)}
-                    className="ml-1 text-blue-600 hover:text-blue-800"
+                    className="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-bold text-lg"
                   >
                     ×
                   </button>
@@ -259,13 +259,13 @@ export const PlannerForm: React.FC<PlannerFormProps> = ({
         </div>
 
         {/* Form Actions */}
-        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+        <div className="flex justify-end space-x-4 pt-8 border-t-2 border-gray-200 dark:border-gray-700">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
           )}
-          <Button type="submit" loading={loading}>
+          <Button type="submit" loading={loading} size="lg" className="px-8">
             {initialData ? 'Update Goal' : 'Create Goal'}
           </Button>
         </div>

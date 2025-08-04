@@ -171,13 +171,14 @@ export const GoalCard: React.FC<GoalCardProps> = ({
 
       {/* Actions */}
       <div className="flex justify-between items-center pt-4 border-t border-slate-300">
-        <div className="flex flex-wrap gap-2 items-center">
+        <div className="flex flex-wrap gap-3 items-center justify-start">
           {onEdit && (
             <Button
               size="sm"
               variant="outline"
               icon={Edit}
               onClick={() => onEdit(goal)}
+              className="flex-shrink-0"
             >
               Edit
             </Button>
@@ -191,30 +192,37 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                 goal.id, 
                 goal.status === 'active' ? 'paused' : 'active'
               )}
+              className="flex-shrink-0"
             >
               {goal.status === 'active' ? 'Pause' : 'Resume'}
             </Button>
           )}
 
-          {/* Add to Calendar Buttons */}
-          <a
-            href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(goal.title)}&details=${encodeURIComponent(`${goal.description || ''}\n\nPriority: ${goal.priority}\nEstimated daily time: ${Math.floor(goal.estimatedDailyTimeMinutes / 60)}h ${goal.estimatedDailyTimeMinutes % 60}m`)}&dates=${eventTimes.googleStart}/${eventTimes.googleEnd}&location=${encodeURIComponent('Auto Goal Planner')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-green-100 text-green-800 hover:bg-green-200 transition-all border border-green-200 shadow-sm"
-            title="Add to Google Calendar"
-          >
-            <Calendar className="w-4 h-4 mr-1 text-green-600" /> Google Calendar
-          </a>
-          <a
-            href={`https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(goal.title)}&body=${encodeURIComponent(`${goal.description || ''}\n\nPriority: ${goal.priority}\nEstimated daily time: ${Math.floor(goal.estimatedDailyTimeMinutes / 60)}h ${goal.estimatedDailyTimeMinutes % 60}m`)}&startdt=${eventTimes.msStart}&enddt=${eventTimes.msEnd}&location=${encodeURIComponent('Auto Goal Planner')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-200 transition-all border border-blue-200 shadow-sm"
-            title="Add to Microsoft Calendar"
-          >
-            <Calendar className="w-4 h-4 mr-1 text-blue-600" /> Microsoft Calendar
-          </a>
+          {/* Calendar buttons in a separate row on mobile */}
+          <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
+            <a
+              href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(goal.title)}&details=${encodeURIComponent(`${goal.description || ''}\n\nPriority: ${goal.priority}\nEstimated daily time: ${Math.floor(goal.estimatedDailyTimeMinutes / 60)}h ${goal.estimatedDailyTimeMinutes % 60}m`)}&dates=${eventTimes.googleStart}/${eventTimes.googleEnd}&location=${encodeURIComponent('Auto Goal Planner')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50 transition-all border border-green-200 dark:border-green-700 shadow-sm backdrop-blur-sm flex-shrink-0"
+              title="Add to Google Calendar"
+            >
+              <Calendar className="w-4 h-4 mr-1.5 text-green-600 dark:text-green-400" />
+              <span className="hidden sm:inline">Google</span>
+              <span className="sm:hidden">G</span>
+            </a>
+            <a
+              href={`https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(goal.title)}&body=${encodeURIComponent(`${goal.description || ''}\n\nPriority: ${goal.priority}\nEstimated daily time: ${Math.floor(goal.estimatedDailyTimeMinutes / 60)}h ${goal.estimatedDailyTimeMinutes % 60}m`)}&startdt=${eventTimes.msStart}&enddt=${eventTimes.msEnd}&location=${encodeURIComponent('Auto Goal Planner')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-all border border-blue-200 dark:border-blue-700 shadow-sm backdrop-blur-sm flex-shrink-0"
+              title="Add to Microsoft Calendar"
+            >
+              <Calendar className="w-4 h-4 mr-1.5 text-blue-600 dark:text-blue-400" />
+              <span className="hidden sm:inline">Outlook</span>
+              <span className="sm:hidden">O</span>
+            </a>
+          </div>
         </div>
 
         {onDelete && (
@@ -223,7 +231,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
             variant="ghost"
             icon={Trash2}
             onClick={() => onDelete(goal.id)}
-            className="text-red-700 hover:text-red-800 hover:bg-red-100 font-semibold border border-red-200 shadow-sm"
+            className="text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30 font-semibold border border-red-200 dark:border-red-700 shadow-sm flex-shrink-0"
           />
         )}
       </div>
