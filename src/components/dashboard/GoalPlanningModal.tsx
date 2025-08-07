@@ -309,8 +309,8 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                     className="text-sm px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 font-medium border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
                   >
                     "{example}"
-                    Create Goal with This Plan
-                ))}
+               </button>
+             ))}
               </div>
             </div>
 
