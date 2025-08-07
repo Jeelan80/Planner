@@ -36,8 +36,8 @@ export const AIGoalPlannerCard: React.FC = () => {
 
   // Use correct types for strategy and analysis
   const handleStrategySelected = (strategy: PlanningStrategy, analysis: { parsedGoal: { title: string; timeframe: number; dailyTime: number; category: string; }; strategies: PlanningStrategy[] }) => {
-    console.log('Strategy selected:', strategy, analysis);
-    // This will be handled by the parent component later
+    // This will trigger the modal to open and handle the strategy selection
+    setIsModalOpen(true);
   };
 
   return (

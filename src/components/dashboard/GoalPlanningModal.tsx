@@ -309,7 +309,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                     className="text-sm px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 font-medium border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
                   >
                     "{example}"
-                  </button>
+                    Create Goal with This Plan
                 ))}
               </div>
             </div>
@@ -421,7 +421,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                             className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 py-3 font-semibold"
                           >
                             <Calendar className="w-4 h-4 mr-2" />
-                            Use This Strategy
+                            Create Goal with This Strategy
                           </Button>
                         </div>
                       </div>

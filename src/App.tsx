@@ -81,6 +81,9 @@ function App() {
     generateTasksForGoal(newGoal);
     
     setIsGoalPlanningModalOpen(false);
+    
+    // Show success message or navigate to the goal
+    console.log('Goal created successfully:', newGoal.title);
   };
 
   const handleAIPlanSelected = (strategy: PlanningStrategy, analysis: GoalAnalysis) => {
