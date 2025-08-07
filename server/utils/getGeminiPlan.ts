@@ -13,8 +13,9 @@ export async function getGeminiPlan(goal: string) {
 
   // Create a detailed prompt for goal planning
   const prompt = `You are an expert AI goal planning assistant. Analyze the user's goal: "${goal}" and create 3 HIGHLY DETAILED, personalized strategies.
-
 IMPORTANT: Create a complete day-by-day plan for the ENTIRE duration. Each strategy must be unique and provide specific, actionable tasks.
+
+For each day, keep the task text as short and straight to the point as possible (max 5-8 words). Do NOT use long sentences. Example: "Solve 5 array problems", "Read Ch. 2", "Run 2km", "Build login UI".
 
 Return ONLY this JSON structure:
 {
