@@ -479,27 +479,29 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
                               <span className="text-sm font-bold text-gray-700 dark:text-gray-300 bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded">
                                 Day {task.day}
                               </span>
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="number"
-                                  aria-label="Hours"
-                                  value={Math.floor(task.duration / 60)}
-                                  onChange={(e) => handleTaskDurationChange(index, e.target.value, 'h')}
-                                  className="w-12 px-1 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                                  min="0"
-                                />
-                                <span className="text-xs text-gray-500 dark:text-gray-400">h</span>
-                                <input
-                                  type="number"
-                                  aria-label="Minutes"
-                                  value={task.duration % 60}
-                                  onChange={(e) => handleTaskDurationChange(index, e.target.value, 'm')}
-                                  className="w-12 px-1 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                                  min="0"
-                                  max="59"
-                                />
-                                <span className="text-xs text-gray-500 dark:text-gray-400">m</span>
-                              </div>
+                              {viewingStrategy?.id !== 'milestone' && (
+                                <div className="flex items-center space-x-2">
+                                  <input
+                                    type="number"
+                                    aria-label="Hours"
+                                    value={Math.floor(task.duration / 60)}
+                                    onChange={(e) => handleTaskDurationChange(index, e.target.value, 'h')}
+                                    className="w-12 px-1 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                    min="0"
+                                  />
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">h</span>
+                                  <input
+                                    type="number"
+                                    aria-label="Minutes"
+                                    value={task.duration % 60}
+                                    onChange={(e) => handleTaskDurationChange(index, e.target.value, 'm')}
+                                    className="w-12 px-1 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                    min="0"
+                                    max="59"
+                                  />
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">m</span>
+                                </div>
+                              )}
                             </div>
                             <textarea
                               value={task.task}
