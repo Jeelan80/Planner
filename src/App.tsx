@@ -180,7 +180,11 @@ function App() {
       </div>
 
       {/* AI Goal Planner Card - Show at top if no goals exist */}
-      {goals.length === 0 && <AIGoalPlannerCard />}
+      {goals.length === 0 && (
+        <div onClick={() => setIsGoalPlanningModalOpen(true)}>
+          <AIGoalPlannerCard />
+        </div>
+      )}
 
       {/* Header Stats - Only show if user has goals */}
       {goals.length > 0 && (
@@ -226,7 +230,11 @@ function App() {
       )}
 
       {/* AI Goal Planner Card - Show after stats if goals exist */}
-      {goals.length > 0 && <AIGoalPlannerCard />}
+      {goals.length > 0 && (
+        <div onClick={() => setIsGoalPlanningModalOpen(true)}>
+          <AIGoalPlannerCard />
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="flex flex-wrap justify-center gap-4 mt-8 px-4">

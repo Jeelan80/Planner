@@ -34,10 +34,14 @@ export const AIGoalPlannerCard: React.FC = () => {
     "Finish 4 books in 30 days, 1hr/day",
   ];
 
-  // Use correct types for strategy and analysis
-  const handleStrategySelected = (strategy: PlanningStrategy, analysis: { parsedGoal: { title: string; timeframe: number; dailyTime: number; category: string; }; strategies: PlanningStrategy[] }) => {
-    // This will trigger the modal to open and handle the strategy selection
-    setIsModalOpen(true);
+  // This function will be called when a strategy is selected in the modal
+  const handleStrategySelected = (strategy: PlanningStrategy, analysis: GoalAnalysis) => {
+    // Close the modal first
+    setIsModalOpen(false);
+    
+    // The actual goal creation logic should be handled by the parent component
+    // This component just opens/closes the modal
+    console.log('Strategy selected:', strategy.name, 'for goal:', analysis.parsedGoal.title);
   };
 
   return (
@@ -133,4 +137,4 @@ export const AIGoalPlannerCard: React.FC = () => {
       />
     </>
   );
-}
+};

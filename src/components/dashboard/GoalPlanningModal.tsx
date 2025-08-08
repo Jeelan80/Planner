@@ -239,10 +239,16 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
   const handleUseEditedPlan = useCallback(() => {
     if (viewingStrategy && analysis) {
       const updatedStrategy = { ...viewingStrategy, plan: editablePlan };
-      onStrategySelected(updatedStrategy, analysis);
-      onClose();
+      handleStrategySelect(updatedStrategy);
     }
   }, [viewingStrategy, analysis, editablePlan, onStrategySelected, onClose]);
+
+  const handleStrategySelect = useCallback((strategy: PlanningStrategy) => {
+    if (analysis) {
+      onStrategySelected(strategy, analysis);
+      onClose();
+    }
+  }, [analysis, onStrategySelected, onClose]);
 
   const handleClose = useCallback(() => {
     setGoalInput('');
@@ -424,7 +430,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
                               View Plan
                             </Button>
                             <Button
-                              onClick={() => handleStrategySelect(strategy)}
+                              onClick={() => onStrategySelected(strategy, analysis)}
                               className="w-full bg-purple-500 hover:bg-purple-600 py-3 font-semibold"
                             >
                               <Calendar className="w-4 h-4 mr-2" />
