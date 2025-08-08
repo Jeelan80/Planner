@@ -18,7 +18,7 @@ import { useTasks } from './hooks/useTasks';
 import { useUserPersonalization } from './hooks/useUserPersonalization';
 import { GoalFormData, Goal } from './types';
 import type { PlanningStrategy, GoalAnalysis } from './components/forms/AIGoalPlanner';
-import { Plus, Target, Calendar, CheckCircle, Brain } from 'lucide-react';
+import { Plus, Target, Calendar, CheckCircle, Brain, Zap, Clock, TrendingUp, Shield, Sparkles } from 'lucide-react';
 
 type ViewMode = 'dashboard' | 'create-goal' | 'ai-planner' | 'plan-viewer' | 'edit-goal' | 'goals' | 'today';
 
@@ -177,11 +177,12 @@ function App() {
         />
       </div>
 
-      {/* AI Goal Planner Card */}
-      <AIGoalPlannerCard />
+      {/* AI Goal Planner Card - Show at top if no goals exist */}
+      {goals.length === 0 && <AIGoalPlannerCard />}
 
-      {/* Header Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Header Stats - Only show if user has goals */}
+      {goals.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <div className="flex items-center">
             <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg icon-float">
@@ -220,9 +221,13 @@ function App() {
           </div>
         </Card>
       </div>
+      )}
+
+      {/* AI Goal Planner Card - Show after stats if goals exist */}
+      {goals.length > 0 && <AIGoalPlannerCard />}
 
       {/* Quick Actions */}
-      <div className="flex space-x-4">
+      <div className="flex flex-wrap justify-center gap-4 mt-8 px-4">
         <Button icon={Plus} onClick={() => setCurrentView('create-goal')}>
           Create New Goal
         </Button>
@@ -299,18 +304,122 @@ function App() {
         </div>
       )}
 
-      {/* Empty State */}
+      {/* Feature Highlights for First-Time Users */}
       {goals.length === 0 && !goalsLoading && (
-        <Card className="text-center py-12">
-          <div className="flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4">
-            <Target className="w-8 h-8 text-gray-400" />
+        <div className="space-y-8">
+          {/* Why Choose Our AI Planner */}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-white mb-3 flex items-center justify-center gap-2">
+              <Sparkles className="w-6 h-6 text-purple-400" />
+              Why Choose AI Goal Planning?
+            </h2>
+            <p className="text-white/80 text-lg max-w-2xl mx-auto">
+              Experience the power of intelligent planning that adapts to your lifestyle and maximizes your success rate
+            </p>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No goals yet</h3>
-          <p className="text-gray-600 mb-6">Get started by creating your first goal!</p>
-          <Button icon={Plus} onClick={() => setCurrentView('create-goal')}>
-            Create Your First Goal
-          </Button>
-        </Card>
+
+          {/* Feature Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {/* AI-Powered Planning */}
+            <div className="group bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:bg-white/15 hover:scale-105 hover:shadow-xl">
+              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Brain className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">AI-Powered</h3>
+              <p className="text-white/70 text-sm leading-relaxed">
+                Smart algorithms analyze your goals and create personalized action plans
+              </p>
+            </div>
+
+            {/* Time Optimization */}
+            <div className="group bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:bg-white/15 hover:scale-105 hover:shadow-xl">
+              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Clock className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">Time Optimized</h3>
+              <p className="text-white/70 text-sm leading-relaxed">
+                Efficient scheduling that fits your daily routine and maximizes productivity
+              </p>
+            </div>
+
+            {/* Progress Tracking */}
+            <div className="group bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:bg-white/15 hover:scale-105 hover:shadow-xl">
+              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">Smart Tracking</h3>
+              <p className="text-white/70 text-sm leading-relaxed">
+                Visual progress indicators and milestone celebrations keep you motivated
+              </p>
+            </div>
+
+            {/* Privacy First */}
+            <div className="group bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:bg-white/15 hover:scale-105 hover:shadow-xl">
+              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">Privacy First</h3>
+              <p className="text-white/70 text-sm leading-relaxed">
+                Your data stays in your browser. No servers, no tracking, complete privacy
+              </p>
+            </div>
+          </div>
+
+          {/* How It Works */}
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-white mb-2">How AI Goal Planning Works</h3>
+              <p className="text-white/70">Simple steps to transform your ideas into actionable plans</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+              <div className="text-center">
+                <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-3">
+                  <span className="text-white font-bold">1</span>
+                </div>
+                <h4 className="text-white font-semibold mb-2">Describe Your Goal</h4>
+                <p className="text-white/70 text-sm">Tell our AI what you want to achieve in natural language</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full mx-auto mb-3">
+                  <span className="text-white font-bold">2</span>
+                </div>
+                <h4 className="text-white font-semibold mb-2">Get Smart Strategies</h4>
+                <p className="text-white/70 text-sm">AI analyzes and suggests multiple approaches tailored to you</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-pink-500 to-orange-600 rounded-full mx-auto mb-3">
+                  <span className="text-white font-bold">3</span>
+                </div>
+                <h4 className="text-white font-semibold mb-2">Track Progress</h4>
+                <p className="text-white/70 text-sm">Follow your personalized plan with daily tasks and milestones</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Call to Action */}
+          <div className="text-center">
+            <p className="text-white/80 mb-6 text-lg">
+              Ready to transform your dreams into achievable milestones?
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button 
+                icon={Brain} 
+                onClick={() => setCurrentView('ai-planner')}
+                className="btn-gradient text-white font-bold py-4 px-8 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
+              >
+                Start AI Planning
+              </Button>
+              <Button 
+                icon={Plus} 
+                onClick={() => setCurrentView('create-goal')}
+                variant="outline"
+                className="w-full sm:w-auto"
+              >
+                Create Manual Goal
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

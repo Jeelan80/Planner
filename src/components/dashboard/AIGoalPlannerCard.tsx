@@ -42,42 +42,42 @@ export const AIGoalPlannerCard: React.FC = () => {
 
   return (
     <>
-      <Card className="relative overflow-hidden mx-auto w-full max-w-4xl min-h-[500px] flex flex-col justify-center items-center p-8 sm:p-12 rounded-3xl shadow-2xl card-gradient mt-8">
-      {/* Background decorative elements */}
-      <div className="absolute top-0 right-0 w-32 h-32 opacity-10 pointer-events-none">
-        <div className="absolute top-4 right-4 w-8 h-8 bg-blue-500 rounded-full animate-pulse"></div>
-        <div className="absolute top-8 right-12 w-4 h-4 bg-purple-500 rounded-full animate-pulse delay-500"></div>
-        <div className="absolute top-12 right-6 w-6 h-6 bg-pink-500 rounded-full animate-pulse delay-1000"></div>
-      </div>
-
+      <div className="neon-border-wrapper mx-auto w-full max-w-4xl">
+        <Card className="relative overflow-hidden w-full flex flex-col items-center p-6 sm:p-8 rounded-3xl shadow-2xl ai-goal-card-light">
       <div className="relative z-10 w-full flex flex-col items-center">
         {/* Focused Card Section */}
-        <div className="mb-6 w-full max-w-lg mx-auto">
+        <div className="mb-4 w-full max-w-lg mx-auto">
           <div className="flex flex-col items-center justify-center">
-            <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl shadow-lg mb-4 icon-float">
+            <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl shadow-lg mb-3 icon-float">
               <Brain className="w-7 h-7 text-white" />
             </div>
-            <h3 className="text-3xl font-bold text-white dark:text-white flex items-center space-x-2 mb-3 text-center">
+            <h3 className="text-3xl font-bold !text-slate-900 dark:!text-white flex items-center space-x-2 mb-3 text-center">
               <span>What's Your Goal?</span>
-              <Sparkles className="w-6 h-6 text-purple-400 dark:text-purple-300" />
+              <Sparkles className="w-6 h-6 !text-indigo-600 dark:!text-purple-400" />
             </h3>
-            <p className="text-white/90 mb-6 text-center text-lg font-medium">
+            <p className="!text-slate-600 dark:!text-white/90 mb-6 text-center text-lg font-medium leading-relaxed">
               Click below to open our AI-powered goal planning assistant
             </p>
-            <Button
+            <button
               onClick={() => setIsModalOpen(true)}
-              className="btn-gradient text-white font-bold py-4 px-8 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 w-full max-w-xs transform hover:scale-105"
-              icon={Brain}
+              className="group relative w-full max-w-xs overflow-hidden rounded-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-700 p-0.5 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 focus:outline-none focus:ring-4 focus:ring-purple-500/50"
             >
-              Plan My Goal
-            </Button>
+              <div className="relative flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-600 px-8 py-4 text-lg font-bold !text-white transition-all duration-300 group-hover:from-purple-400 group-hover:via-blue-400 group-hover:to-purple-500">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 animate-shimmer"></div>
+                <Brain className="w-6 h-6 !text-white transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
+                <span className="relative z-10 tracking-wide !text-white">Plan My Goal</span>
+                <div className="absolute right-4 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1">
+                  <Sparkles className="w-5 h-5 !text-white" />
+                </div>
+              </div>
+            </button>
           </div>
         </div>
 
         {/* Examples section */}
-        <div className="mb-8 flex flex-col items-center w-full">
-          <p className="text-sm font-semibold text-white/70 dark:text-white/80 mb-4 flex items-center space-x-2 justify-center">
-            <Target className="w-4 h-4 text-purple-500" />
+        <div className="mb-6 flex flex-col items-center w-full">
+          <p className="text-sm font-semibold !text-slate-500 dark:!text-white/70 mb-4 flex items-center space-x-2 justify-center">
+            <Target className="w-4 h-4 !text-indigo-500 dark:!text-purple-400" />
             <span>Try examples like:</span>
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-2xl justify-center">
@@ -85,7 +85,7 @@ export const AIGoalPlannerCard: React.FC = () => {
               <button
                 type="button"
                 key={index}
-                className="bg-white/10 dark:bg-white/5 border border-white/30 dark:border-white/20 rounded-xl px-3 py-2 shadow-sm flex items-center justify-center text-xs font-medium text-white/90 dark:text-white/80 cursor-pointer transition-all duration-200 hover:bg-white/20 dark:hover:bg-white/10 hover:border-white/40 dark:hover:border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-300 transform hover:scale-105"
+                className="!bg-white/60 dark:!bg-white/10 border !border-white/40 dark:!border-white/20 rounded-xl px-4 py-3 shadow-sm flex items-center justify-center text-xs font-medium !text-slate-700 dark:!text-white/80 cursor-pointer transition-all duration-200 hover:!bg-white/80 dark:hover:!bg-white/20 hover:!border-indigo-300 dark:hover:!border-white/30 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-300 transform hover:scale-105 backdrop-blur-sm"
                 aria-label={`Fill input with example: ${example}`}
               >
                 <span className="text-center leading-tight">"{example}"</span>
@@ -95,32 +95,35 @@ export const AIGoalPlannerCard: React.FC = () => {
         </div>
 
         {/* AI features highlight */}
-        <div className="ai-planning-card">
-          <div className="ai-planning-card-title flex items-center gap-2 mb-2">
-            <Zap className="w-5 h-5 text-purple-400" />
-            AI will analyze and suggest multiple planning strategies
+        <div className="bg-white/40 dark:bg-white/5 border border-white/30 dark:border-white/10 rounded-2xl p-4 sm:p-5 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <Zap className="w-5 h-5 !text-indigo-600 dark:!text-purple-400" />
+            <span className="text-base font-semibold !text-slate-800 dark:!text-white">
+              AI will analyze and suggest multiple planning strategies
+            </span>
           </div>
-          <div className="ai-planning-card-list">
-            <div className="ai-planning-card-list-item">
-              <Clock className="w-4 h-4 text-purple-300" />
-              <span>Time optimization</span>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 !text-indigo-500 dark:!text-purple-300" />
+              <span className="text-sm font-medium !text-slate-700 dark:!text-white/80">Time optimization</span>
             </div>
-            <div className="ai-planning-card-list-item">
-              <Target className="w-4 h-4 text-purple-300" />
-              <span>Goal breakdown</span>
+            <div className="flex items-center gap-2">
+              <Target className="w-4 h-4 !text-indigo-500 dark:!text-purple-300" />
+              <span className="text-sm font-medium !text-slate-700 dark:!text-white/80">Goal breakdown</span>
             </div>
-            <div className="ai-planning-card-list-item">
-              <Sparkles className="w-4 h-4 text-purple-300" />
-              <span>Smart scheduling</span>
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 !text-indigo-500 dark:!text-purple-300" />
+              <span className="text-sm font-medium !text-slate-700 dark:!text-white/80">Smart scheduling</span>
             </div>
-            <div className="ai-planning-card-list-item">
-              <Brain className="w-4 h-4 text-purple-300" />
-              <span>Strategy suggestions</span>
+            <div className="flex items-center gap-2">
+              <Brain className="w-4 h-4 !text-indigo-500 dark:!text-purple-300" />
+              <span className="text-sm font-medium !text-slate-700 dark:!text-white/80">Strategy suggestions</span>
             </div>
           </div>
         </div>
       </div>
       </Card>
+      </div>
 
       {/* Goal Planning Modal */}
       <GoalPlanningModal
