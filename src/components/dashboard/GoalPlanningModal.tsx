@@ -243,12 +243,6 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
     }
   }, [viewingStrategy, analysis, editablePlan, onStrategySelected, onClose]);
 
-  const handleStrategySelect = useCallback((strategy: PlanningStrategy) => {
-    if (analysis) {
-      onStrategySelected(strategy, analysis);
-      onClose();
-    }
-  }, [analysis, onStrategySelected, onClose]);
 
   const handleClose = useCallback(() => {
     setGoalInput('');
