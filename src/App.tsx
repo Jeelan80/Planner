@@ -13,6 +13,7 @@ import { FirstTimeSetup } from './components/common/FirstTimeSetup';
 import { PersonalizedWelcome } from './components/common/PersonalizedWelcome';
 import { AIGoalPlannerCard } from './components/dashboard/AIGoalPlannerCard';
 import { GoalPlanningModal } from './components/dashboard/GoalPlanningModal';
+import { TestModal } from './components/TestModal';
 import { useGoals } from './hooks/useGoals';
 import { useTasks } from './hooks/useTasks';
 import { useUserPersonalization } from './hooks/useUserPersonalization';
@@ -25,6 +26,7 @@ type ViewMode = 'dashboard' | 'create-goal' | 'ai-planner' | 'plan-viewer' | 'ed
 function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
   const [isGoalPlanningModalOpen, setIsGoalPlanningModalOpen] = useState(false);
+  const [isTestModalOpen, setIsTestModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [selectedStrategy, setSelectedStrategy] = useState<PlanningStrategy | null>(null);
   const [goalAnalysis, setGoalAnalysis] = useState<GoalAnalysis | null>(null);
@@ -230,6 +232,9 @@ function App() {
       <div className="flex flex-wrap justify-center gap-4 mt-8 px-4">
         <Button icon={Plus} onClick={() => setCurrentView('create-goal')}>
           Create New Goal
+        </Button>
+        <Button icon={Zap} onClick={() => setIsTestModalOpen(true)} variant="outline">
+          Test Scroll Performance
         </Button>
         <Button icon={Brain} onClick={() => setCurrentView('ai-planner')}>
           AI Goal Planner
@@ -533,6 +538,12 @@ function App() {
         isOpen={isGoalPlanningModalOpen}
         onClose={() => setIsGoalPlanningModalOpen(false)}
         onStrategySelected={handleGoalPlanningModalStrategySelected}
+      />
+
+      {/* Test Modal for Performance Testing */}
+      <TestModal
+        isOpen={isTestModalOpen}
+        onClose={() => setIsTestModalOpen(false)}
       />
 
       {/* Main Content */}

@@ -1,7 +1,7 @@
 // Goal Planning Modal component for the dashboard
 
-import React, { useState } from 'react';
-import { Card } from '../common/Card';
+import React, { useState, useCallback, memo } from 'react';
+
 import { Button } from '../common/Button';
 import { Brain, X, Target, Clock, Calendar, Sparkles, TrendingUp, Zap } from 'lucide-react';
 
@@ -39,7 +39,7 @@ interface GoalPlanningModalProps {
   onStrategySelected: (strategy: PlanningStrategy, analysis: GoalAnalysis) => void;
 }
 
-export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
+export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
   isOpen,
   onClose,
   onStrategySelected,
@@ -192,70 +192,77 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
     }
   };
 
-  const handlePlan = async () => {
+  const handlePlan = useCallback(async () => {
     if (!goalInput.trim()) {
       setError('Please enter your goal.');
       return;
     }
     await analyzeGoal(goalInput.trim());
-  };
+  }, [goalInput]);
 
-  const handleStrategySelect = (strategy: PlanningStrategy) => {
+  const handleStrategySelect = useCallback((strategy: PlanningStrategy) => {
     if (analysis) {
       onStrategySelected(strategy, analysis);
       onClose();
     }
-  };
+  }, [analysis, onStrategySelected, onClose]);
 
-  const handleViewPlan = (strategy: PlanningStrategy) => {
+  const handleViewPlan = useCallback((strategy: PlanningStrategy) => {
     setViewingStrategy(strategy);
     setEditablePlan([...strategy.plan]);
-  };
+  }, []);
 
-  const handleBackToStrategies = () => {
+  const handleBackToStrategies = useCallback(() => {
     setViewingStrategy(null);
     setEditablePlan([]);
-  };
+  }, []);
 
-  const handleTaskEdit = (index: number, newTask: string) => {
-    const updatedPlan = [...editablePlan];
-    updatedPlan[index] = { ...updatedPlan[index], task: newTask };
-    setEditablePlan(updatedPlan);
-  };
+  const handleTaskEdit = useCallback((index: number, newTask: string) => {
+    setEditablePlan(prev => {
+      const updatedPlan = [...prev];
+      updatedPlan[index] = { ...updatedPlan[index], task: newTask };
+      return updatedPlan;
+    });
+  }, []);
 
-  const handleTaskDurationEdit = (index: number, newDuration: number) => {
-    const updatedPlan = [...editablePlan];
-    updatedPlan[index] = { ...updatedPlan[index], duration: newDuration };
-    setEditablePlan(updatedPlan);
-  };
+  const handleTaskDurationChange = useCallback((index: number, value: string, unit: 'h' | 'm') => {
+    setEditablePlan(prev => {
+      const updatedPlan = [...prev];
+      const currentTask = updatedPlan[index];
+      const hours = unit === 'h' ? parseInt(value, 10) || 0 : Math.floor(currentTask.duration / 60);
+      const minutes = unit === 'm' ? parseInt(value, 10) || 0 : currentTask.duration % 60;
+      updatedPlan[index] = { ...currentTask, duration: hours * 60 + minutes };
+      return updatedPlan;
+    });
+  }, []);
 
-  const handleUseEditedPlan = () => {
+  const handleUseEditedPlan = useCallback(() => {
     if (viewingStrategy && analysis) {
       const updatedStrategy = { ...viewingStrategy, plan: editablePlan };
       onStrategySelected(updatedStrategy, analysis);
       onClose();
     }
-  };
+  }, [viewingStrategy, analysis, editablePlan, onStrategySelected, onClose]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setGoalInput('');
     setAnalysis(null);
     setError('');
     setViewingStrategy(null);
     setEditablePlan([]);
     onClose();
-  };
+  }, [onClose]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] border border-white/20 dark:border-gray-700/50 flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl max-w-5xl w-full max-h-[90vh] border border-gray-200 dark:border-gray-700 flex flex-col">
         {/* Header - Fixed at top */}
-        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 px-6 py-5 rounded-t-3xl flex-shrink-0 z-50">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-5 rounded-t-xl flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl shadow-lg">
+              <div className="flex items-center justify-center w-12 h-12 bg-purple-500 rounded-xl">
                 <Brain className="w-6 h-6 text-white" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -292,7 +299,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
 • "Finish college project in 10 days, 3hr per day"
 • "Finish 4 books in 30 days, 1hr/day"`}
                   rows={5}
-                  className="w-full px-5 py-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white/90 dark:bg-gray-700/90 dark:text-white resize-none text-base backdrop-blur-sm transition-all duration-200"
+                  className="w-full px-5 py-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 dark:text-white resize-none text-base"
                 />
               </div>
 
@@ -307,7 +314,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                     <button
                       key={index}
                       onClick={() => setGoalInput(example)}
-                      className="text-sm px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 font-medium border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
+                      className="text-sm px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 font-medium border border-gray-200 dark:border-gray-600"
                     >
                       "{example}"
                     </button>
@@ -326,7 +333,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                   onClick={handlePlan}
                   loading={loading}
                   disabled={!goalInput.trim()}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-8 py-4 text-lg font-bold shadow-xl"
+                  className="bg-purple-500 hover:bg-purple-600 px-8 py-4 text-lg font-bold"
                   size="lg"
                 >
                   <Brain className="w-5 h-5 mr-2" />
@@ -339,7 +346,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
             {analysis && (
               <div className="space-y-8">
                 {/* Goal Analysis Summary */}
-                <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border-2 border-blue-200 dark:border-blue-700/50 backdrop-blur-sm">
+                <div className="bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-200 dark:border-blue-700/50 rounded-xl p-6">
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                     <Sparkles className="w-5 h-5 mr-2 text-purple-600" />
                     Goal Analysis
@@ -360,7 +367,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                       </p>
                     </div>
                   </div>
-                </Card>
+                </div>
 
                 {/* Planning Strategies */}
                 <div>
@@ -369,15 +376,14 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                   </h3>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {analysis.strategies.map((strategy) => (
-                      <Card
+                      <div
                         key={strategy.id}
-                        className="hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-600 transform hover:scale-105"
-                        variant="glass"
+                        className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 rounded-xl p-6"
                       >
                         <div className="space-y-5">
                           {/* Strategy Header */}
                           <div className="flex items-start space-x-3">
-                            <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-xl flex-shrink-0 shadow-lg">
+                            <div className="flex items-center justify-center w-12 h-12 bg-blue-500 rounded-xl flex-shrink-0">
                               <strategy.icon className="w-5 h-5 text-white" />
                             </div>
                             <div className="flex-1">
@@ -402,7 +408,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                           </div>
 
                           {/* Best For */}
-                          <div className="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-700/50 dark:to-blue-900/20 rounded-xl p-4 border border-gray-200 dark:border-gray-600">
+                          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 border border-gray-200 dark:border-gray-600">
                             <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
                               <strong className="text-blue-700 dark:text-blue-400">Best for:</strong> {strategy.bestFor}
                             </p>
@@ -412,21 +418,21 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                           <div className="space-y-3 pt-2">
                             <Button
                               onClick={() => handleViewPlan(strategy)}
-                              className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 py-3 font-semibold"
+                              className="w-full bg-blue-500 hover:bg-blue-600 py-3 font-semibold"
                             >
                               <Target className="w-4 h-4 mr-2" />
                               View Plan
                             </Button>
                             <Button
                               onClick={() => handleStrategySelect(strategy)}
-                              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 py-3 font-semibold"
+                              className="w-full bg-purple-500 hover:bg-purple-600 py-3 font-semibold"
                             >
                               <Calendar className="w-4 h-4 mr-2" />
                               Create Goal with This Strategy
                             </Button>
                           </div>
                         </div>
-                      </Card>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -437,7 +443,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
             {viewingStrategy && analysis && (
               <div className="space-y-8">
                 {/* Header with Back Button */}
-                <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200 dark:border-blue-700/50">
+                <div className="flex items-center space-x-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-700/50">
                   <Button
                     onClick={handleBackToStrategies}
                     className="flex items-center space-x-2 bg-gray-500 hover:bg-gray-600 px-4 py-2"
@@ -460,38 +466,46 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   {/* Scrollable Plan List */}
                   <div className="lg:col-span-2">
-                    <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                       <div className="p-5 border-b border-gray-200 dark:border-gray-700">
                         <h4 className="font-bold text-lg text-gray-900 dark:text-white flex items-center">
                           📋 Daily Tasks (Editable)
                         </h4>
                       </div>
-                      <div className="max-h-96 overflow-y-auto p-5 space-y-4">
+                      <div className="p-5 space-y-3">
                         {editablePlan.map((task, index) => (
-                          <div key={index} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 space-y-3 border border-gray-200 dark:border-gray-600">
-                            <div className="flex items-center justify-between">
-                              <span className="font-bold text-sm text-gray-700 dark:text-gray-300 bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-lg">
+                          <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-bold text-gray-700 dark:text-gray-300 bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded">
                                 Day {task.day}
                               </span>
                               <div className="flex items-center space-x-2">
                                 <input
                                   type="number"
+                                  aria-label="Hours"
                                   value={Math.floor(task.duration / 60)}
-                                  onChange={(e) => handleTaskDurationEdit(index, parseInt(e.target.value) * 60)}
-                                  className="w-16 px-2 py-1 text-xs border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-semibold"
+                                  onChange={(e) => handleTaskDurationChange(index, e.target.value, 'h')}
+                                  className="w-12 px-1 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                                   min="0"
-                                  title={`Duration for day ${task.day}`}
-                                  placeholder="Hours"
                                 />
-                                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">hours</span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">h</span>
+                                <input
+                                  type="number"
+                                  aria-label="Minutes"
+                                  value={task.duration % 60}
+                                  onChange={(e) => handleTaskDurationChange(index, e.target.value, 'm')}
+                                  className="w-12 px-1 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                  min="0"
+                                  max="59"
+                                />
+                                <span className="text-xs text-gray-500 dark:text-gray-400">m</span>
                               </div>
                             </div>
                             <textarea
                               value={task.task}
                               onChange={(e) => handleTaskEdit(index, e.target.value)}
-                              className="w-full px-4 py-3 text-sm border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none font-medium"
+                              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
                               rows={2}
-                              title={`Task for day ${task.day}`}
                               placeholder="Enter task description..."
                             />
                           </div>
@@ -500,9 +514,9 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Strategy Info Sidebar */}
-                  <div className="space-y-6">
-                    <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-5">
+                  {/* Strategy Info Sidebar - Sticky */}
+                  <div className="space-y-6 sticky top-0 self-start">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
                       <h5 className="font-bold text-gray-900 dark:text-white mb-4 text-lg">Strategy Benefits</h5>
                       <ul className="space-y-3">
                         {viewingStrategy.pros.map((pro, index) => (
@@ -514,7 +528,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                       </ul>
                     </div>
 
-                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-5">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-5">
                       <h5 className="font-bold text-blue-900 dark:text-blue-300 mb-3 text-lg">Best For</h5>
                       <p className="text-sm text-blue-800 dark:text-blue-400 font-medium">
                         {viewingStrategy.bestFor}
@@ -524,7 +538,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
                     <div className="space-y-3">
                       <Button
                         onClick={handleUseEditedPlan}
-                        className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 py-3 font-bold"
+                        className="w-full bg-green-500 hover:bg-green-600 py-3 font-bold"
                       >
                         <Sparkles className="w-4 h-4 mr-2" />
                         Use This Plan
@@ -545,4 +559,4 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = ({
       </div>
     </div>
   );
-};
+});
