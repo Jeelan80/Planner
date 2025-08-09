@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Layout } from './components/layout/Layout';
 import { PlannerForm } from './components/forms/PlannerForm';
 import { AIGoalPlanner } from './components/forms/AIGoalPlanner';
-import { DetailedPlanViewer } from './components/forms/DetailedPlanViewer';
+
 import { GoalCard } from './components/planner/GoalCard';
 import { TaskItem } from './components/planner/TaskItem';
 import { Button } from './components/common/Button';
@@ -13,24 +13,24 @@ import { FirstTimeSetup } from './components/common/FirstTimeSetup';
 import { PersonalizedWelcome } from './components/common/PersonalizedWelcome';
 import { AIGoalPlannerCard } from './components/dashboard/AIGoalPlannerCard';
 import { GoalPlanningModal } from './components/dashboard/GoalPlanningModal';
-import { TestModal } from './components/TestModal';
+
 import { useGoals } from './hooks/useGoals';
 import { useTasks } from './hooks/useTasks';
 import { useUserPersonalization } from './hooks/useUserPersonalization';
 import { GoalFormData, Goal } from './types';
 import type { PlanningStrategy, GoalAnalysis } from './components/forms/AIGoalPlanner';
-import { Plus, Target, Calendar, CheckCircle, Brain, Zap, Clock, TrendingUp, Shield, Sparkles } from 'lucide-react';
+import { Plus, Target, Calendar, CheckCircle, Brain, Clock, TrendingUp, Shield, Sparkles } from 'lucide-react';
 
-type ViewMode = 'dashboard' | 'create-goal' | 'ai-planner' | 'plan-viewer' | 'edit-goal' | 'goals' | 'today';
+type ViewMode = 'dashboard' | 'create-goal' | 'ai-planner' | 'goals' | 'today';
 
 function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
   const [isGoalPlanningModalOpen, setIsGoalPlanningModalOpen] = useState(false);
-  const [isTestModalOpen, setIsTestModalOpen] = useState(false);
+
   const [isCustomViewMode, setIsCustomViewMode] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
-  const [selectedStrategy, setSelectedStrategy] = useState<PlanningStrategy | null>(null);
-  const [goalAnalysis, setGoalAnalysis] = useState<GoalAnalysis | null>(null);
+
+
 
   // User personalization
   const {
@@ -98,33 +98,7 @@ function App() {
     console.log('Current goals count:', goals.length);
   };
 
-  const handleAIPlanSelected = (strategy: PlanningStrategy, analysis: GoalAnalysis) => {
-    setSelectedStrategy(strategy);
-    setGoalAnalysis(analysis);
-    setCurrentView('plan-viewer');
-  };
 
-  const handleSaveAIPlan = (planData: { strategy: PlanningStrategy; analysis: GoalAnalysis }) => {
-    // Convert AI plan to GoalFormData format
-    const goalData: GoalFormData = {
-      title: planData.analysis.parsedGoal.title,
-      description: `AI Generated Plan: ${planData.strategy.name}\n\n${planData.strategy.description}`,
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(Date.now() + planData.analysis.parsedGoal.timeframe * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      estimatedDailyTimeMinutes: planData.analysis.parsedGoal.dailyTime,
-      estimatedDailyTime: `${Math.floor(planData.analysis.parsedGoal.dailyTime / 60).toString().padStart(2, '0')}:${(planData.analysis.parsedGoal.dailyTime % 60).toString().padStart(2, '0')} AM`,
-      priority: 'medium' as const,
-      tags: ['AI Generated', planData.strategy.name],
-    };
-
-    const newGoal = createGoal(goalData);
-    generateTasksForGoal(newGoal);
-
-    // Reset AI planner state
-    setSelectedStrategy(null);
-    setGoalAnalysis(null);
-    setCurrentView('dashboard');
-  };
 
   const handleEditGoal = (goal: Goal) => {
     setEditingGoal(goal);
@@ -277,12 +251,8 @@ function App() {
         <Button icon={Plus} onClick={() => setCurrentView('create-goal')}>
           Create New Goal
         </Button>
-        <Button icon={Zap} onClick={() => setIsTestModalOpen(true)} variant="outline">
-          Test Scroll Performance
-        </Button>
-        <Button icon={Brain} onClick={() => setCurrentView('ai-planner')}>
-          AI Goal Planner
-        </Button>
+
+
         <Button variant="outline" onClick={() => setCurrentView('today')}>
           View Today's Tasks
         </Button>
@@ -638,25 +608,29 @@ function App() {
         onStrategySelected={handleGoalPlanningModalStrategySelected}
       />
 
-      {/* Test Modal for Performance Testing */}
-      <TestModal
-        isOpen={isTestModalOpen}
-        onClose={() => setIsTestModalOpen(false)}
-      />
+
 
       {/* Main Content */}
       {currentView === 'dashboard' && renderDashboard()}
       {currentView === 'create-goal' && renderCreateGoal()}
       {currentView === 'ai-planner' && (
-        <AIGoalPlanner onPlanSelected={handleAIPlanSelected} />
-      )}
-      {currentView === 'plan-viewer' && selectedStrategy && goalAnalysis && (
-        <DetailedPlanViewer
-          strategy={selectedStrategy}
-          analysis={goalAnalysis}
-          onSave={handleSaveAIPlan}
-          onBack={() => setCurrentView('ai-planner')}
-        />
+        <AIGoalPlanner onPlanSelected={(strategy, analysis) => {
+          // Convert AI plan to GoalFormData format
+          const goalData: GoalFormData = {
+            title: analysis.parsedGoal.title,
+            description: `AI Generated Plan: ${strategy.name}\n\n${strategy.description}`,
+            startDate: new Date().toISOString().split('T')[0],
+            endDate: new Date(Date.now() + analysis.parsedGoal.timeframe * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            estimatedDailyTimeMinutes: analysis.parsedGoal.dailyTime,
+            estimatedDailyTime: `${Math.floor(analysis.parsedGoal.dailyTime / 60).toString().padStart(2, '0')}:${(analysis.parsedGoal.dailyTime % 60).toString().padStart(2, '0')} AM`,
+            priority: 'medium' as const,
+            tags: ['AI Generated', strategy.name],
+          };
+
+          const newGoal = createGoal(goalData);
+          generateTasksForGoal(newGoal);
+          setCurrentView('dashboard');
+        }} />
       )}
       {currentView === 'goals' && renderGoals()}
       {currentView === 'today' && renderTodaysTasks()}
