@@ -6,13 +6,14 @@ import { PlannerForm } from './components/forms/PlannerForm';
 import { AIGoalPlanner } from './components/forms/AIGoalPlanner';
 
 import { GoalCard } from './components/planner/GoalCard';
-import { TaskItem } from './components/planner/TaskItem';
+
 import { Button } from './components/common/Button';
 import { Card } from './components/common/Card';
 import { FirstTimeSetup } from './components/common/FirstTimeSetup';
 import { PersonalizedWelcome } from './components/common/PersonalizedWelcome';
 import { AIGoalPlannerCard } from './components/dashboard/AIGoalPlannerCard';
 import { GoalPlanningModal } from './components/dashboard/GoalPlanningModal';
+import { GoalDetailsModal } from './components/dashboard/GoalDetailsModal';
 
 import { useGoals } from './hooks/useGoals';
 import { useTasks } from './hooks/useTasks';
@@ -26,6 +27,7 @@ type ViewMode = 'dashboard' | 'create-goal' | 'ai-planner' | 'goals' | 'today';
 function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
   const [isGoalPlanningModalOpen, setIsGoalPlanningModalOpen] = useState(false);
+  const [selectedGoalForDetails, setSelectedGoalForDetails] = useState<Goal | null>(null);
 
   const [isCustomViewMode, setIsCustomViewMode] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
@@ -56,6 +58,9 @@ function App() {
     // tasks,
     generateTasksForGoal,
     updateTask,
+    addTask,
+    addMultipleTasks,
+    deleteTask,
     getTasksForGoal,
     getTodaysTasks,
     deleteTasksForGoal,
@@ -88,8 +93,9 @@ function App() {
     const newGoal = createGoal(goalData);
     console.log('Created goal:', newGoal);
 
-    generateTasksForGoal(newGoal);
-    console.log('Generated tasks for goal');
+    // Create tasks from the AI-generated plan instead of using generic generator
+    createTasksFromAIPlan(newGoal, strategy);
+    console.log('Generated AI tasks for goal');
 
     setIsGoalPlanningModalOpen(false);
 
@@ -144,6 +150,35 @@ function App() {
 
   const handleToggleTask = (taskId: string, completed: boolean) => {
     updateTask(taskId, { completed });
+  };
+
+  const handleViewGoalDetails = (goal: Goal) => {
+    console.log('Opening goal details for:', goal.title);
+    setSelectedGoalForDetails(goal);
+  };
+
+  const handleCloseGoalDetails = () => {
+    setSelectedGoalForDetails(null);
+  };
+
+  const createTasksFromAIPlan = (goal: Goal, strategy: PlanningStrategy) => {
+    console.log('Creating tasks from AI plan:', strategy.plan.length, 'tasks');
+
+    const tasksData = strategy.plan.map((planTask) => ({
+      title: planTask.task,
+      description: `${strategy.name} - Day ${planTask.day}`,
+      scheduledDate: new Date(goal.startDate.getTime() + (planTask.day - 1) * 24 * 60 * 60 * 1000),
+      estimatedTimeMinutes: planTask.duration,
+      completed: false,
+      order: planTask.day,
+      category: (strategy.id === 'milestone' ? 'milestone' : 'daily') as 'milestone' | 'daily',
+    }));
+
+    // Add all tasks at once to avoid race conditions
+    const createdTasks = addMultipleTasks(goal.id, tasksData);
+    console.log('Created tasks:', createdTasks.length);
+
+    return createdTasks;
   };
 
   const activeGoals = getActiveGoals();
@@ -261,89 +296,7 @@ function App() {
         </Button>
       </div>
 
-      {/* Today's Tasks Preview */}
-      {todaysTasks.length > 0 && (
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Today's Tasks</h2>
-          <div className="space-y-3">
-            {todaysTasks.slice(0, 3).map(task => {
-              const goal = goals.find(g => g.id === task.goalId);
-              return (
-                <TaskItem
-                  key={task.id}
-                  task={task}
-                  onToggleComplete={handleToggleTask}
-                  showGoalTitle
-                  goalTitle={goal?.title}
-                />
-              );
-            })}
-            {todaysTasks.length > 3 && (
-              <Button
-                variant="outline"
-                onClick={() => setCurrentView('today')}
-                className="w-full"
-              >
-                View All {todaysTasks.length} Tasks
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
 
-      {/* Today's Tasks - Enhanced when in custom view mode */}
-      {todaysTasks.length > 0 && (
-        <div className="transition-all duration-500 ease-in-out transform">
-          <div className={`rounded-2xl p-6 border shadow-xl ${isCustomViewMode
-            ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-400/30'
-            : 'bg-white/10 backdrop-blur-sm border-white/20'
-            }`}>
-            <h2 className={`font-bold mb-6 flex items-center ${isCustomViewMode ? 'text-2xl text-white' : 'text-xl text-white'
-              }`}>
-              <CheckCircle className={`mr-3 text-green-400 ${isCustomViewMode ? 'w-7 h-7' : 'w-5 h-5'}`} />
-              {isCustomViewMode ? 'Today\'s Focus Tasks' : 'Today\'s Tasks'}
-              <span className="ml-3 text-sm bg-blue-500/30 px-3 py-1 rounded-full">
-                {todaysTasks.filter(t => !t.completed).length} remaining
-              </span>
-            </h2>
-            <div className={`gap-4 ${isCustomViewMode
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-              : 'grid grid-cols-1 md:grid-cols-2 gap-3'
-              }`}>
-              {(isCustomViewMode ? todaysTasks.slice(0, 6) : todaysTasks.slice(0, 4)).map(task => (
-                <div key={task.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/15 transition-all">
-                  <div className="flex items-start space-x-3">
-                    <button
-                      onClick={() => updateTask(task.id, { completed: !task.completed })}
-                      className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${task.completed
-                        ? 'bg-green-500 border-green-500'
-                        : 'border-white/40 hover:border-white/60'
-                        }`}
-                    >
-                      {task.completed && <CheckCircle className="w-3 h-3 text-white" />}
-                    </button>
-                    <div className="flex-1">
-                      <p className={`text-sm font-medium ${task.completed ? 'text-white/60 line-through' : 'text-white'}`}>
-                        {task.title}
-                      </p>
-                      <p className="text-xs text-white/50 mt-1">
-                        {task.estimatedTimeMinutes}min
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {((isCustomViewMode && todaysTasks.length > 6) || (!isCustomViewMode && todaysTasks.length > 4)) && (
-              <div className="mt-4 text-center">
-                <Button variant="outline" size="sm" onClick={() => setCurrentView('today')}>
-                  View All {todaysTasks.length} Tasks
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Recent Goals - Always show when goals exist */}
       {activeGoals.length > 0 && (
@@ -363,6 +316,7 @@ function App() {
                   onEdit={handleEditGoal}
                   onDelete={handleDeleteGoal}
                   onToggleStatus={handleToggleGoalStatus}
+                  onViewDetails={handleViewGoalDetails}
                 />
               );
             })}
@@ -500,7 +454,17 @@ function App() {
   const renderGoals = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">All Goals</h1>
+        <div className="flex items-center space-x-4">
+          <Button
+            onClick={() => setCurrentView('dashboard')}
+            variant="outline"
+            size="sm"
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+          >
+            ← Back to Dashboard
+          </Button>
+          <h1 className="text-2xl font-semibold text-white">All Goals</h1>
+        </div>
         <Button icon={Plus} onClick={() => setCurrentView('create-goal')}>
           Create Goal
         </Button>
@@ -521,6 +485,7 @@ function App() {
                 onEdit={handleEditGoal}
                 onDelete={handleDeleteGoal}
                 onToggleStatus={handleToggleGoalStatus}
+                onViewDetails={handleViewGoalDetails}
               />
             );
           })}
@@ -535,37 +500,135 @@ function App() {
     </div>
   );
 
-  const renderTodaysTasks = () => (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Today's Tasks</h1>
+  const renderTodaysTasks = () => {
+    const completedTasks = todaysTasks.filter(t => t.completed);
+    const progress = todaysTasks.length > 0 ? (completedTasks.length / todaysTasks.length) * 100 : 0;
 
-      {todaysTasks.length > 0 ? (
-        <div className="space-y-4">
-          {todaysTasks.map(task => {
-            const goal = goals.find(g => g.id === task.goalId);
-            return (
-              <TaskItem
-                key={task.id}
-                task={task}
-                onToggleComplete={handleToggleTask}
-                showGoalTitle
-                goalTitle={goal?.title}
-              />
-            );
-          })}
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button
+              onClick={() => setCurrentView('dashboard')}
+              variant="outline"
+              size="sm"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              ← Back to Dashboard
+            </Button>
+            <h1 className="text-2xl font-semibold text-white">Today's Tasks</h1>
+          </div>
+          <span className="text-sm text-white/70">
+            {completedTasks.length}/{todaysTasks.length} completed ({Math.round(progress)}%)
+          </span>
         </div>
-      ) : (
-        <Card className="text-center py-12">
-          <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks for today</h3>
-          <p className="text-gray-600">You're all caught up!</p>
-        </Card>
-      )}
-    </div>
-  );
+
+        {/* Progress Bar */}
+        {todaysTasks.length > 0 && (
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-semibold text-white">Today's Progress</h3>
+              <span className="text-sm text-white/70">
+                {Math.round(progress)}% complete
+              </span>
+            </div>
+            <div className="w-full bg-white/20 rounded-full h-3">
+              <div
+                className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+
+        {todaysTasks.length > 0 ? (
+          <div className="space-y-4">
+            {todaysTasks.map(task => {
+              const goal = goals.find(g => g.id === task.goalId);
+              return (
+                <div
+                  key={task.id}
+                  className={`bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 ${task.completed ? 'opacity-75' : ''
+                    }`}
+                >
+                  <div className="flex items-start space-x-3">
+                    <button
+                      onClick={() => handleToggleTask(task.id, !task.completed)}
+                      className={`mt-1 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${task.completed
+                        ? 'bg-green-500 border-green-500'
+                        : 'border-white/40 hover:border-white/60'
+                        }`}
+                    >
+                      {task.completed && <CheckCircle className="w-4 h-4 text-white" />}
+                    </button>
+                    <div className="flex-1">
+                      <h4 className={`font-semibold text-lg ${task.completed ? 'line-through text-white/60' : 'text-white'}`}>
+                        {task.title}
+                      </h4>
+                      {task.description && (
+                        <p className={`text-sm mt-1 ${task.completed ? 'line-through text-white/50' : 'text-white/80'}`}>
+                          {task.description}
+                        </p>
+                      )}
+                      <div className="flex items-center space-x-4 mt-3">
+                        <div className="flex items-center space-x-2 text-xs text-white/60">
+                          <Calendar className="w-4 h-4" />
+                          <span>{task.scheduledDate.toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 text-xs text-white/60">
+                          <Clock className="w-4 h-4" />
+                          <span>{task.estimatedTimeMinutes}min</span>
+                        </div>
+                        {goal && (
+                          <div className="flex items-center space-x-2 text-xs text-white/60">
+                            <Target className="w-4 h-4" />
+                            <span>{goal.title}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-2">
+                        <span className={`inline-block px-2 py-1 text-xs rounded-full font-medium ${task.category === 'milestone'
+                          ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                          : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                          }`}>
+                          {task.category === 'milestone' ? 'Milestone' : 'Daily Task'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <Card className="text-center py-12">
+            <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks for today</h3>
+            <p className="text-gray-600">You're all caught up!</p>
+          </Card>
+        )}
+      </div>
+    );
+  };
 
   const renderCreateGoal = () => (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div className="flex items-center space-x-4">
+        <Button
+          onClick={() => {
+            setEditingGoal(null);
+            setCurrentView('dashboard');
+          }}
+          variant="outline"
+          size="sm"
+          className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+        >
+          ← Back to Dashboard
+        </Button>
+        <h1 className="text-2xl font-semibold text-white">
+          {editingGoal ? 'Edit Goal' : 'Create New Goal'}
+        </h1>
+      </div>
       <PlannerForm
         onSubmit={editingGoal ? handleUpdateGoal : handleCreateGoal}
         onCancel={() => {
@@ -608,29 +671,56 @@ function App() {
         onStrategySelected={handleGoalPlanningModalStrategySelected}
       />
 
+      {/* Goal Details Modal */}
+      <GoalDetailsModal
+        isOpen={!!selectedGoalForDetails}
+        onClose={handleCloseGoalDetails}
+        goal={selectedGoalForDetails}
+        tasks={selectedGoalForDetails ? getTasksForGoal(selectedGoalForDetails.id) : []}
+        onUpdateTask={updateTask}
+        onAddTask={addTask}
+        onDeleteTask={deleteTask}
+      />
+
 
 
       {/* Main Content */}
       {currentView === 'dashboard' && renderDashboard()}
       {currentView === 'create-goal' && renderCreateGoal()}
       {currentView === 'ai-planner' && (
-        <AIGoalPlanner onPlanSelected={(strategy, analysis) => {
-          // Convert AI plan to GoalFormData format
-          const goalData: GoalFormData = {
-            title: analysis.parsedGoal.title,
-            description: `AI Generated Plan: ${strategy.name}\n\n${strategy.description}`,
-            startDate: new Date().toISOString().split('T')[0],
-            endDate: new Date(Date.now() + analysis.parsedGoal.timeframe * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            estimatedDailyTimeMinutes: analysis.parsedGoal.dailyTime,
-            estimatedDailyTime: `${Math.floor(analysis.parsedGoal.dailyTime / 60).toString().padStart(2, '0')}:${(analysis.parsedGoal.dailyTime % 60).toString().padStart(2, '0')} AM`,
-            priority: 'medium' as const,
-            tags: ['AI Generated', strategy.name],
-          };
+        <div className="space-y-6">
+          <div className="flex items-center space-x-4">
+            <Button
+              onClick={() => setCurrentView('dashboard')}
+              variant="outline"
+              size="sm"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              ← Back to Dashboard
+            </Button>
+            <h1 className="text-2xl font-semibold text-white">AI Goal Planner</h1>
+          </div>
+          <AIGoalPlanner
+            onPlanSelected={(strategy, analysis) => {
+              // Convert AI plan to GoalFormData format
+              const goalData: GoalFormData = {
+                title: analysis.parsedGoal.title,
+                description: `AI Generated Plan: ${strategy.name}\n\n${strategy.description}`,
+                startDate: new Date().toISOString().split('T')[0],
+                endDate: new Date(Date.now() + analysis.parsedGoal.timeframe * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                estimatedDailyTimeMinutes: analysis.parsedGoal.dailyTime,
+                estimatedDailyTime: `${Math.floor(analysis.parsedGoal.dailyTime / 60).toString().padStart(2, '0')}:${(analysis.parsedGoal.dailyTime % 60).toString().padStart(2, '0')} AM`,
+                priority: 'medium' as const,
+                tags: ['AI Generated', strategy.name],
+              };
 
-          const newGoal = createGoal(goalData);
-          generateTasksForGoal(newGoal);
-          setCurrentView('dashboard');
-        }} />
+              const newGoal = createGoal(goalData);
+              createTasksFromAIPlan(newGoal, strategy);
+              setCurrentView('dashboard');
+            }}
+            onCancel={() => setCurrentView('dashboard')}
+          />
+        </div>
       )}
       {currentView === 'goals' && renderGoals()}
       {currentView === 'today' && renderTodaysTasks()}

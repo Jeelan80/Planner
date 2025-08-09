@@ -3,6 +3,7 @@
 import React, { useState, useCallback, memo, useRef } from 'react';
 
 import { Button } from '../common/Button';
+import styles from './GoalPlanningModal.module.css';
 import { Brain, X, Target, Clock, Calendar, Sparkles, TrendingUp, Zap } from 'lucide-react';
 
 interface DailyTask {
@@ -70,7 +71,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
   ];
 
   // Real API call to backend
-  const analyzeGoal = async (input: string) => {
+  const analyzeGoal = useCallback(async (input: string) => {
     setLoading(true);
     setError('');
     setLoadingStep(0);
@@ -273,7 +274,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
       setLoading(false);
       setLoadingStep(0);
     }
-  };
+  }, [loadingSteps.length]);
 
   const handlePlan = useCallback(async () => {
     if (!goalInput.trim()) {
@@ -281,7 +282,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
       return;
     }
     await analyzeGoal(goalInput.trim());
-  }, [goalInput]);
+  }, [goalInput, analyzeGoal]);
 
   const handleStrategySelect = useCallback((strategy: PlanningStrategy) => {
     if (analysis) {
@@ -347,7 +348,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 pt-20">
       <div className="bg-white dark:bg-gray-800 rounded-xl max-w-5xl w-full max-h-[90vh] border border-gray-200 dark:border-gray-700 flex flex-col">
         {/* Header - Fixed at top */}
         <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-5 rounded-t-xl flex-shrink-0">
@@ -364,9 +365,9 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
               variant="ghost"
               size="sm"
               onClick={handleClose}
-              className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl"
+              className="p-2 bg-red-50 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-gray-600 rounded-lg text-red-600 dark:text-gray-100 hover:text-red-700 dark:hover:text-white border-2 border-red-200 dark:border-gray-500 hover:border-red-300 dark:hover:border-gray-400 shadow-md hover:shadow-lg transition-all duration-200"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 stroke-2" />
             </Button>
           </div>
         </div>
@@ -445,9 +446,8 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
                     </span>
                   </div>
                   <div className="mt-3 bg-blue-200 dark:bg-blue-800 rounded-full h-1.5">
-                    <div
-                      className="bg-purple-500 h-1.5 rounded-full transition-all duration-300 ease-out"
-                      style={{ width: `${((loadingStep + 1) / loadingSteps.length) * 100}%` }}
+                    <div 
+                      className={`${styles.progressBar} progress-${Math.round((loadingStep + 1) / loadingSteps.length * 4) * 25}`}
                     ></div>
                   </div>
                 </div>

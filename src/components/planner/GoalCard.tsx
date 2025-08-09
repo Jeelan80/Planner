@@ -15,6 +15,7 @@ interface GoalCardProps {
   onEdit?: (goal: Goal) => void;
   onDelete?: (goalId: string) => void;
   onToggleStatus?: (goalId: string, status: Goal['status']) => void;
+  onViewDetails?: (goal: Goal) => void;
 }
 
 export const GoalCard: React.FC<GoalCardProps> = ({
@@ -24,6 +25,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   onEdit,
   onDelete,
   onToggleStatus,
+  onViewDetails,
 }) => {
   const progress = tasksCount > 0 ? (completedTasksCount / tasksCount) * 100 : 0;
   const daysRemaining = dateUtils.getDaysBetween(new Date(), goal.endDate);
@@ -78,7 +80,11 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   const eventTimes = getEventTimes();
 
   return (
-    <Card hover className="relative goal-card-enhanced">
+    <Card 
+      hover 
+      className="relative goal-card-enhanced cursor-pointer" 
+      onClick={() => onViewDetails?.(goal)}
+    >
       {/* Goal Header with inline status */}
       <div className="mb-4">
         <div className="flex items-start justify-between gap-3 mb-2">
@@ -168,7 +174,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
       )}
 
       {/* Actions */}
-      <div className="flex justify-between items-center pt-4 border-t border-slate-300 dark:border-slate-600">
+      <div className="flex justify-between items-center pt-4 border-t border-slate-300 dark:border-slate-600" onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-wrap gap-3 items-center justify-start">
           {onEdit && (
             <Button

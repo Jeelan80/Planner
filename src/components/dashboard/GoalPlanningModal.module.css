@@ -1,0 +1,30 @@
+.progressBar {
+  background-color: rgb(168 85 247); /* purple-500 */
+  height: 0.375rem; /* h-1.5 */
+  border-radius: 9999px; /* rounded-full */
+  transition: all 300ms ease-out;
+  width: 0%;
+}
+
+.progressBar[data-progress="25"] { width: 25%; }
+.progressBar[data-progress="50"] { width: 50%; }
+.progressBar[data-progress="75"] { width: 75%; }
+.progressBar[data-progress="100"] { width: 100%; }
+
+/* Dynamic progress classes */
+.progressBar.progress-0 { width: 0%; }
+.progressBar.progress-25 { width: 25%; }
+.progressBar.progress-50 { width: 50%; }
+.progressBar.progress-75 { width: 75%; }
+.progressBar.progress-100 { width: 100%; }
+
+.progressContainer {
+  margin-top: 0.75rem; /* mt-3 */
+  background-color: rgb(191 219 254); /* bg-blue-200 */
+  border-radius: 9999px; /* rounded-full */
+  height: 0.375rem; /* h-1.5 */
+}
+
+.progressContainer.dark {
+  background-color: rgb(30 64 175); /* dark:bg-blue-800 */
+}

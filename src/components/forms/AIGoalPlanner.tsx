@@ -218,7 +218,7 @@ export const AIGoalPlanner: React.FC<AIGoalPlannerProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-6">
       {/* Input Section */}
       <Card>
         <div className="flex items-center space-x-3 mb-6">

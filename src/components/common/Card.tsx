@@ -8,6 +8,7 @@ interface CardProps {
   hover?: boolean;
   padding?: 'none' | 'sm' | 'md' | 'lg';
   variant?: 'default' | 'glass' | 'solid';
+  onClick?: () => void;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -16,6 +17,7 @@ export const Card: React.FC<CardProps> = ({
   hover = false,
   padding = 'md',
   variant = 'glass',
+  onClick,
 }) => {
   const paddingClasses = {
     none: '',
@@ -38,7 +40,7 @@ export const Card: React.FC<CardProps> = ({
   ].join(' ');
 
   return (
-    <div className={classes}>
+    <div className={classes} onClick={onClick}>
       {children}
     </div>
   );

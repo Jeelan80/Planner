@@ -102,6 +102,36 @@ export const useTasks = () => {
     });
   }, [tasks]);
 
+  // Add a new task
+  const addTask = useCallback((goalId: string, taskData: Omit<Task, 'id' | 'goalId'>) => {
+    const newTask: Task = {
+      id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      goalId,
+      ...taskData,
+    };
+    const updatedTasks = [...tasks, newTask];
+    saveTasks(updatedTasks);
+    return newTask;
+  }, [tasks, saveTasks]);
+
+  // Add multiple tasks at once
+  const addMultipleTasks = useCallback((goalId: string, tasksData: Omit<Task, 'id' | 'goalId'>[]) => {
+    const newTasks: Task[] = tasksData.map((taskData, index) => ({
+      id: `task-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+      goalId,
+      ...taskData,
+    }));
+    const updatedTasks = [...tasks, ...newTasks];
+    saveTasks(updatedTasks);
+    return newTasks;
+  }, [tasks, saveTasks]);
+
+  // Delete a single task
+  const deleteTask = useCallback((taskId: string) => {
+    const updatedTasks = tasks.filter(task => task.id !== taskId);
+    saveTasks(updatedTasks);
+  }, [tasks, saveTasks]);
+
   // Delete tasks for a goal (when goal is deleted)
   const deleteTasksForGoal = useCallback((goalId: string) => {
     const updatedTasks = tasks.filter(task => task.goalId !== goalId);
@@ -114,6 +144,9 @@ export const useTasks = () => {
     error,
     generateTasksForGoal,
     updateTask,
+    addTask,
+    addMultipleTasks,
+    deleteTask,
     getTasksForGoal,
     getTasksForDate,
     getTodaysTasks,
