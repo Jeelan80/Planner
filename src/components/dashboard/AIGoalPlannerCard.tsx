@@ -22,8 +22,21 @@ interface PlanningStrategy {
   bestFor: string;
 }
 
-// Removed unused GoalAnalysis interface
-export const AIGoalPlannerCard: React.FC = () => {
+interface GoalAnalysis {
+  parsedGoal: {
+    title: string;
+    timeframe: number;
+    dailyTime: number;
+    category: 'learning' | 'fitness' | 'project' | 'skill' | 'habit' | 'urgent';
+  };
+  strategies: PlanningStrategy[];
+}
+
+interface AIGoalPlannerCardProps {
+  onStrategySelected?: (strategy: PlanningStrategy, analysis: GoalAnalysis) => void;
+}
+
+export const AIGoalPlannerCard: React.FC<AIGoalPlannerCardProps> = ({ onStrategySelected }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const examples = [
@@ -39,9 +52,12 @@ export const AIGoalPlannerCard: React.FC = () => {
     // Close the modal first
     setIsModalOpen(false);
     
-    // The actual goal creation logic should be handled by the parent component
-    // This component just opens/closes the modal
-    console.log('Strategy selected:', strategy.name, 'for goal:', analysis.parsedGoal.title);
+    // Call the parent's strategy selected handler if provided
+    if (onStrategySelected) {
+      onStrategySelected(strategy, analysis);
+    } else {
+      console.log('Strategy selected:', strategy.name, 'for goal:', analysis.parsedGoal.title);
+    }
   };
 
   return (

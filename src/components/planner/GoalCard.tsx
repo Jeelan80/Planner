@@ -79,20 +79,18 @@ export const GoalCard: React.FC<GoalCardProps> = ({
 
   return (
     <Card hover className="relative goal-card-enhanced">
-      {/* Status indicator */}
-      <div className="absolute top-4 right-4">
-        <span className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full ${getStatusColor(goal.status)}`}>
-          {goal.status}
-        </span>
-      </div>
-
-      {/* Goal Header */}
-      <div className="mb-4 pr-24">
-        <h3 className="text-xl font-bold text-slate-900 mb-2 drop-shadow-sm">
-          {goal.title}
-        </h3>
+      {/* Goal Header with inline status */}
+      <div className="mb-4">
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white drop-shadow-sm flex-1">
+            {goal.title}
+          </h3>
+          <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(goal.status)} flex-shrink-0`}>
+            {goal.status}
+          </span>
+        </div>
         {goal.description && (
-          <p className="text-sm text-slate-700 line-clamp-2 font-medium">
+          <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2 font-medium">
             {goal.description}
           </p>
         )}
@@ -101,8 +99,8 @@ export const GoalCard: React.FC<GoalCardProps> = ({
       {/* Goal Details */}
       <div className="space-y-3 mb-4">
         {/* Date Range */}
-        <div className="flex items-center text-sm text-slate-800 font-medium">
-          <Calendar className="w-4 h-4 mr-2 text-slate-600" />
+        <div className="flex items-center text-sm text-slate-800 dark:text-slate-200 font-medium">
+          <Calendar className="w-4 h-4 mr-2 text-slate-600 dark:text-slate-400" />
           <span>
             {dateUtils.formatDate(goal.startDate)} - {dateUtils.formatDate(goal.endDate)}
           </span>
@@ -114,8 +112,8 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         </div>
 
         {/* Daily Time */}
-        <div className="flex items-center text-sm text-slate-800 font-medium">
-          <Clock className="w-4 h-4 mr-2 text-slate-600" />
+        <div className="flex items-center text-sm text-slate-800 dark:text-slate-200 font-medium">
+          <Clock className="w-4 h-4 mr-2 text-slate-600 dark:text-slate-400" />
           <span>
             {Math.floor(goal.estimatedDailyTimeMinutes / 60)}h {goal.estimatedDailyTimeMinutes % 60}m daily
           </span>
@@ -135,7 +133,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         {/* Tags */}
         {goal.tags && goal.tags.length > 0 && (
           <div className="flex items-center">
-            <Tag className="w-4 h-4 mr-2 text-slate-600" />
+            <Tag className="w-4 h-4 mr-2 text-slate-600 dark:text-slate-400" />
             <div className="flex flex-wrap gap-1">
               {goal.tags.map((tag, index) => (
                 <span
@@ -170,7 +168,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
       )}
 
       {/* Actions */}
-      <div className="flex justify-between items-center pt-4 border-t border-slate-300">
+      <div className="flex justify-between items-center pt-4 border-t border-slate-300 dark:border-slate-600">
         <div className="flex flex-wrap gap-3 items-center justify-start">
           {onEdit && (
             <Button
@@ -178,7 +176,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               variant="outline"
               icon={Edit}
               onClick={() => onEdit(goal)}
-              className="flex-shrink-0"
+              className="flex-shrink-0 bg-gray-100 dark:bg-slate-800 border-2 border-gray-400 dark:border-slate-600 !text-gray-800 dark:!text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-700 shadow-md font-semibold hover:!text-gray-900 dark:hover:!text-white"
             >
               Edit
             </Button>
@@ -192,7 +190,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                 goal.id, 
                 goal.status === 'active' ? 'paused' : 'active'
               )}
-              className="flex-shrink-0"
+              className="flex-shrink-0 bg-gray-100 dark:bg-slate-800 border-2 border-gray-400 dark:border-slate-600 !text-gray-800 dark:!text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-700 shadow-md font-semibold hover:!text-gray-900 dark:hover:!text-white"
             >
               {goal.status === 'active' ? 'Pause' : 'Resume'}
             </Button>
@@ -228,10 +226,10 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         {onDelete && (
           <Button
             size="sm"
-            variant="ghost"
+            variant="outline"
             icon={Trash2}
             onClick={() => onDelete(goal.id)}
-            className="text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30 font-semibold border border-red-200 dark:border-red-700 shadow-sm flex-shrink-0"
+            className="!text-red-700 dark:!text-red-400 hover:!text-red-800 dark:hover:!text-red-300 bg-red-50 dark:bg-slate-800 hover:bg-red-100 dark:hover:bg-red-900/30 font-semibold border-2 border-red-400 dark:border-red-700 shadow-md flex-shrink-0"
           />
         )}
       </div>

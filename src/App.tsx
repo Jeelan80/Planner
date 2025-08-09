@@ -27,6 +27,7 @@ function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
   const [isGoalPlanningModalOpen, setIsGoalPlanningModalOpen] = useState(false);
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
+  const [isCustomViewMode, setIsCustomViewMode] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [selectedStrategy, setSelectedStrategy] = useState<PlanningStrategy | null>(null);
   const [goalAnalysis, setGoalAnalysis] = useState<GoalAnalysis | null>(null);
@@ -42,13 +43,13 @@ function App() {
     cancelEditingName,
   } = useUserPersonalization();
 
-  const { 
-    goals, 
-    loading: goalsLoading, 
-    createGoal, 
-    updateGoal, 
+  const {
+    goals,
+    loading: goalsLoading,
+    createGoal,
+    updateGoal,
     deleteGoal,
-    getActiveGoals 
+    getActiveGoals
   } = useGoals();
 
   const {
@@ -67,6 +68,9 @@ function App() {
   };
 
   const handleGoalPlanningModalStrategySelected = (strategy: PlanningStrategy, analysis: GoalAnalysis) => {
+    console.log('Creating goal with strategy:', strategy.name);
+    console.log('Analysis:', analysis);
+
     // Convert AI plan to GoalFormData format
     const goalData: GoalFormData = {
       title: analysis.parsedGoal.title,
@@ -79,13 +83,19 @@ function App() {
       tags: ['AI Generated', strategy.name],
     };
 
+    console.log('Goal data to create:', goalData);
+
     const newGoal = createGoal(goalData);
+    console.log('Created goal:', newGoal);
+
     generateTasksForGoal(newGoal);
-    
+    console.log('Generated tasks for goal');
+
     setIsGoalPlanningModalOpen(false);
-    
+
     // Show success message or navigate to the goal
     console.log('Goal created successfully:', newGoal.title);
+    console.log('Current goals count:', goals.length);
   };
 
   const handleAIPlanSelected = (strategy: PlanningStrategy, analysis: GoalAnalysis) => {
@@ -109,7 +119,7 @@ function App() {
 
     const newGoal = createGoal(goalData);
     generateTasksForGoal(newGoal);
-    
+
     // Reset AI planner state
     setSelectedStrategy(null);
     setGoalAnalysis(null);
@@ -123,7 +133,7 @@ function App() {
 
   const handleUpdateGoal = (goalData: GoalFormData) => {
     if (!editingGoal) return;
-    
+
     updateGoal(editingGoal.id, {
       title: goalData.title,
       description: goalData.description,
@@ -142,7 +152,7 @@ function App() {
       endDate: new Date(goalData.endDate),
     };
     generateTasksForGoal(updatedGoal);
-    
+
     setEditingGoal(null);
     setCurrentView('dashboard');
   };
@@ -181,58 +191,84 @@ function App() {
 
       {/* AI Goal Planner Card - Show at top if no goals exist */}
       {goals.length === 0 && (
-        <div onClick={() => setIsGoalPlanningModalOpen(true)}>
-          <AIGoalPlannerCard />
-        </div>
+        <AIGoalPlannerCard onStrategySelected={handleGoalPlanningModalStrategySelected} />
       )}
 
       {/* Header Stats - Only show if user has goals */}
       {goals.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <div className="flex items-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg icon-float">
-              <Target className="w-6 h-6 text-white" />
-            </div>
-            <div className="ml-4">
-              <p className="text-2xl font-bold text-gradient">{activeGoals.length}</p>
-              <p className="text-sm text-white/70 font-medium">Active Goals</p>
-            </div>
-          </div>
-        </Card>
+        <div className="space-y-6">
+          {/* Stats Cards with Customize Button */}
+          <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <div className="flex items-center">
+                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg icon-float">
+                    <Target className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-2xl font-bold text-gradient">{activeGoals.length}</p>
+                    <p className="text-sm text-white/70 font-medium">Active Goals</p>
+                  </div>
+                </div>
+              </Card>
 
-        <Card>
-          <div className="flex items-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg icon-float">
-              <CheckCircle className="w-6 h-6 text-white" />
-            </div>
-            <div className="ml-4">
-              <p className="text-2xl font-bold text-gradient">
-                {todaysTasks.filter(t => t.completed).length}
-              </p>
-              <p className="text-sm text-white/70 font-medium">Tasks Completed Today</p>
-            </div>
-          </div>
-        </Card>
+              <Card>
+                <div className="flex items-center">
+                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg icon-float">
+                    <CheckCircle className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-2xl font-bold text-gradient">
+                      {todaysTasks.filter(t => t.completed).length}
+                    </p>
+                    <p className="text-sm text-white/70 font-medium">Tasks Completed Today</p>
+                  </div>
+                </div>
+              </Card>
 
-        <Card>
-          <div className="flex items-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl shadow-lg icon-float">
-              <Calendar className="w-6 h-6 text-white" />
+              <Card>
+                <div className="flex items-center">
+                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl shadow-lg icon-float">
+                    <Calendar className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-2xl font-bold text-gradient">{todaysTasks.length}</p>
+                    <p className="text-sm text-white/70 font-medium">Tasks Due Today</p>
+                  </div>
+                </div>
+              </Card>
             </div>
-            <div className="ml-4">
-              <p className="text-2xl font-bold text-gradient">{todaysTasks.length}</p>
-              <p className="text-sm text-white/70 font-medium">Tasks Due Today</p>
+
+            {/* Customize View Button - Floating in top right */}
+            <div className="absolute -top-2 -right-2 z-10">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsCustomViewMode(!isCustomViewMode)}
+                className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-2 border-purple-300 dark:border-purple-600 !text-purple-700 dark:!text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                title={isCustomViewMode ? "Switch to Goals View" : "Switch to Focus View"}
+              >
+                {isCustomViewMode ? (
+                  <>
+                    <Brain className="w-4 h-4 mr-1" />
+                    Plan With AI
+                  </>
+                ) : (
+                  <>
+                    <Target className="w-4 h-4 mr-1" />
+                    Show Goals
+                  </>
+                )}
+              </Button>
             </div>
           </div>
-        </Card>
-      </div>
+        </div>
       )}
 
-      {/* AI Goal Planner Card - Show after stats if goals exist */}
-      {goals.length > 0 && (
-        <div onClick={() => setIsGoalPlanningModalOpen(true)}>
-          <AIGoalPlannerCard />
+      {/* AI Goal Planner Card - Show after stats if goals exist and not in custom view mode */}
+      {goals.length > 0 && !isCustomViewMode && (
+        <div className="transition-all duration-500 ease-in-out">
+          <AIGoalPlannerCard onStrategySelected={handleGoalPlanningModalStrategySelected} />
         </div>
       )}
 
@@ -285,7 +321,61 @@ function App() {
         </div>
       )}
 
-      {/* Recent Goals */}
+      {/* Today's Tasks - Enhanced when in custom view mode */}
+      {todaysTasks.length > 0 && (
+        <div className="transition-all duration-500 ease-in-out transform">
+          <div className={`rounded-2xl p-6 border shadow-xl ${isCustomViewMode
+            ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-400/30'
+            : 'bg-white/10 backdrop-blur-sm border-white/20'
+            }`}>
+            <h2 className={`font-bold mb-6 flex items-center ${isCustomViewMode ? 'text-2xl text-white' : 'text-xl text-white'
+              }`}>
+              <CheckCircle className={`mr-3 text-green-400 ${isCustomViewMode ? 'w-7 h-7' : 'w-5 h-5'}`} />
+              {isCustomViewMode ? 'Today\'s Focus Tasks' : 'Today\'s Tasks'}
+              <span className="ml-3 text-sm bg-blue-500/30 px-3 py-1 rounded-full">
+                {todaysTasks.filter(t => !t.completed).length} remaining
+              </span>
+            </h2>
+            <div className={`gap-4 ${isCustomViewMode
+              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+              : 'grid grid-cols-1 md:grid-cols-2 gap-3'
+              }`}>
+              {(isCustomViewMode ? todaysTasks.slice(0, 6) : todaysTasks.slice(0, 4)).map(task => (
+                <div key={task.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/15 transition-all">
+                  <div className="flex items-start space-x-3">
+                    <button
+                      onClick={() => updateTask(task.id, { completed: !task.completed })}
+                      className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${task.completed
+                        ? 'bg-green-500 border-green-500'
+                        : 'border-white/40 hover:border-white/60'
+                        }`}
+                    >
+                      {task.completed && <CheckCircle className="w-3 h-3 text-white" />}
+                    </button>
+                    <div className="flex-1">
+                      <p className={`text-sm font-medium ${task.completed ? 'text-white/60 line-through' : 'text-white'}`}>
+                        {task.title}
+                      </p>
+                      <p className="text-xs text-white/50 mt-1">
+                        {task.estimatedTimeMinutes}min
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {((isCustomViewMode && todaysTasks.length > 6) || (!isCustomViewMode && todaysTasks.length > 4)) && (
+              <div className="mt-4 text-center">
+                <Button variant="outline" size="sm" onClick={() => setCurrentView('today')}>
+                  View All {todaysTasks.length} Tasks
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Recent Goals - Always show when goals exist */}
       {activeGoals.length > 0 && (
         <div>
           <h2 className="text-xl font-semibold text-white mb-4">Active Goals</h2>
@@ -293,7 +383,7 @@ function App() {
             {activeGoals.slice(0, 4).map(goal => {
               const goalTasks = getTasksForGoal(goal.id);
               const completedTasks = goalTasks.filter(t => t.completed);
-              
+
               return (
                 <GoalCard
                   key={goal.id}
@@ -415,15 +505,15 @@ function App() {
               Ready to transform your dreams into achievable milestones?
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
-                icon={Brain} 
+              <Button
+                icon={Brain}
                 onClick={() => setCurrentView('ai-planner')}
                 className="btn-gradient text-white font-bold py-4 px-8 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
               >
                 Start AI Planning
               </Button>
-              <Button 
-                icon={Plus} 
+              <Button
+                icon={Plus}
                 onClick={() => setCurrentView('create-goal')}
                 variant="outline"
                 className="w-full sm:w-auto"
@@ -451,7 +541,7 @@ function App() {
           {goals.map(goal => {
             const goalTasks = getTasksForGoal(goal.id);
             const completedTasks = goalTasks.filter(t => t.completed);
-            
+
             return (
               <GoalCard
                 key={goal.id}

@@ -23,13 +23,13 @@ export const Layout: React.FC<LayoutProps> = ({
         {children}
       </main>
       {/* Footer */}
-      <footer className="footer border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <footer className="footer border-t border-gray-200 dark:border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="text-center">
-            <p className="text-sm font-medium text-white/90 mb-2">
+            <p className="text-sm font-semibold text-gray-700 dark:text-white/90 mb-1">
               Auto Goal Planner
             </p>
-            <p className="text-xs text-white/60">
+            <p className="text-xs text-gray-500 dark:text-white/60">
               Plan Smart • Track Progress • Achieve More
             </p>
           </div>

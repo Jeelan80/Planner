@@ -1,6 +1,6 @@
 // Goal Planning Modal component for the dashboard
 
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, memo, useRef } from 'react';
 
 import { Button } from '../common/Button';
 import { Brain, X, Target, Clock, Calendar, Sparkles, TrendingUp, Zap } from 'lucide-react';
@@ -46,10 +46,13 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
 }) => {
   const [goalInput, setGoalInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [analysis, setAnalysis] = useState<GoalAnalysis | null>(null);
   const [error, setError] = useState('');
   const [viewingStrategy, setViewingStrategy] = useState<PlanningStrategy | null>(null);
   const [editablePlan, setEditablePlan] = useState<DailyTask[]>([]);
+  const planViewRef = useRef<HTMLDivElement>(null);
+  const analysisRef = useRef<HTMLDivElement>(null);
 
   const examples = [
     "Learn Python in 20 days, 2 hrs/day",
@@ -59,10 +62,29 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
     "Finish 4 books in 30 days, 1hr/day",
   ];
 
+  const loadingSteps = [
+    "🧠 Understanding your goal...",
+    "📊 Analyzing timeframe and complexity...",
+    "🎯 Generating personalized strategies...",
+    "✨ Finalizing your plan..."
+  ];
+
   // Real API call to backend
   const analyzeGoal = async (input: string) => {
     setLoading(true);
     setError('');
+    setLoadingStep(0);
+
+    // Simulate progress steps
+    const stepInterval = setInterval(() => {
+      setLoadingStep(prev => {
+        if (prev < loadingSteps.length - 1) {
+          return prev + 1;
+        }
+        return prev;
+      });
+    }, 800);
+
     try {
       // Use relative URL - Vite proxy will route to backend
       const response = await fetch('/generate-plan', {
@@ -133,22 +155,73 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
           bestFor: 'Long-term goals and habit formation',
         });
       }
-      if (data.strategies?.milestoneBased) {
-        strategies.push({
-          id: 'milestone',
-          name: 'Milestone-Oriented',
-          icon: Zap,
-          description: 'Set major checkpoints with mini-deadlines',
-          plan: (data.strategies.milestoneBased as Array<{ day?: number; due?: string; milestone?: string; task?: string; minutes?: string | number }>).
-            map(item => ({
-              day: item.day || (item.due ? parseInt(item.due.replace(/\D/g, '')) || 1 : 1),
-              task: item.milestone ? `${item.milestone}: ${item.task || ''}` : (item.task || ''),
-              duration: item.minutes ? (typeof item.minutes === 'string' ? parseInt(item.minutes) || parsedGoal.dailyTime : item.minutes) : parsedGoal.dailyTime
-            })),
-          pros: ['Clear targets', 'Regular achievements', 'Motivation boost'],
-          bestFor: 'Goal-oriented achievers',
-        });
-      }
+      // Create milestone strategy directly on frontend - no backend dependency
+      const createMilestoneStrategy = (goal: ParsedGoal) => {
+        const milestones = [];
+        const chunkSize = Math.max(3, Math.floor(goal.timeframe / 4)); // Create 3-4 milestones
+
+        for (let i = 0; i < Math.ceil(goal.timeframe / chunkSize); i++) {
+          const startDay = i * chunkSize + 1;
+          const endDay = Math.min((i + 1) * chunkSize, goal.timeframe);
+
+          // Generate milestone content based on goal type
+          let milestoneTitle, taskDescription;
+
+          if (goal.title.toLowerCase().includes('python') || goal.title.toLowerCase().includes('coding')) {
+            const pythonMilestones = [
+              { title: 'Foundation Setup', task: 'Install Python, VS Code, setup environment' },
+              { title: 'Core Concepts', task: 'Variables, data types, functions, control flow' },
+              { title: 'Advanced Topics', task: 'OOP, modules, file handling, error handling' },
+              { title: 'Project & Practice', task: 'Build projects, debugging, best practices' }
+            ];
+            const milestone = pythonMilestones[i] || pythonMilestones[pythonMilestones.length - 1];
+            milestoneTitle = milestone.title;
+            taskDescription = milestone.task;
+          } else if (goal.title.toLowerCase().includes('dsa')) {
+            const dsaMilestones = [
+              { title: 'Arrays & Strings', task: 'Master basic data structures and string manipulation' },
+              { title: 'Trees & Graphs', task: 'Learn tree traversals and graph algorithms' },
+              { title: 'Dynamic Programming', task: 'Solve DP problems and optimization techniques' },
+              { title: 'Advanced Algorithms', task: 'Complex algorithms and problem-solving patterns' }
+            ];
+            const milestone = dsaMilestones[i] || dsaMilestones[dsaMilestones.length - 1];
+            milestoneTitle = milestone.title;
+            taskDescription = milestone.task;
+          } else if (goal.title.toLowerCase().includes('fitness') || goal.title.toLowerCase().includes('weight')) {
+            const fitnessMilestones = [
+              { title: 'Foundation Phase', task: 'Establish routine, basic exercises, diet planning' },
+              { title: 'Building Phase', task: 'Increase intensity, track progress, consistency' },
+              { title: 'Strength Phase', task: 'Advanced workouts, muscle building, endurance' },
+              { title: 'Maintenance Phase', task: 'Sustain results, fine-tune routine, long-term habits' }
+            ];
+            const milestone = fitnessMilestones[i] || fitnessMilestones[fitnessMilestones.length - 1];
+            milestoneTitle = milestone.title;
+            taskDescription = milestone.task;
+          } else {
+            // Generic milestones for any goal
+            milestoneTitle = `Milestone ${i + 1}`;
+            taskDescription = `Complete key objectives for ${goal.title}`;
+          }
+
+          milestones.push({
+            day: endDay,
+            task: `${milestoneTitle} (Days ${startDay}-${endDay}): ${taskDescription}`,
+            duration: goal.dailyTime
+          });
+        }
+
+        return milestones;
+      };
+
+      strategies.push({
+        id: 'milestone',
+        name: 'Milestone-Oriented',
+        icon: Zap,
+        description: 'Set major checkpoints with mini-deadlines',
+        plan: createMilestoneStrategy(parsedGoal),
+        pros: ['Clear targets', 'Regular achievements', 'Motivation boost'],
+        bestFor: 'Goal-oriented achievers',
+      });
       // Time Blocked strategy is handled on frontend with more detailed planning
       strategies.push({
         id: 'time-blocked',
@@ -185,10 +258,20 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
       setAnalysis({ parsedGoal, strategies });
       setViewingStrategy(null);
       setEditablePlan([]);
+
+      // Scroll to analysis section after a short delay to ensure DOM is updated
+      setTimeout(() => {
+        analysisRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to analyze goal. Please try again.');
     } finally {
+      clearInterval(stepInterval);
       setLoading(false);
+      setLoadingStep(0);
     }
   };
 
@@ -210,6 +293,14 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
   const handleViewPlan = useCallback((strategy: PlanningStrategy) => {
     setViewingStrategy(strategy);
     setEditablePlan([...strategy.plan]);
+
+    // Scroll to plan view after a short delay to ensure DOM is updated
+    setTimeout(() => {
+      planViewRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 100);
   }, []);
 
   const handleBackToStrategies = useCallback(() => {
@@ -241,7 +332,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
       const updatedStrategy = { ...viewingStrategy, plan: editablePlan };
       handleStrategySelect(updatedStrategy);
     }
-  }, [viewingStrategy, analysis, editablePlan, onStrategySelected, onClose]);
+  }, [viewingStrategy, analysis, editablePlan, handleStrategySelect]);
 
 
   const handleClose = useCallback(() => {
@@ -342,9 +433,77 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
               </div>
             </div>
 
+            {/* Loading State */}
+            {loading && (
+              <div className="space-y-6">
+                {/* Compact Progress Steps */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50 rounded-xl p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="animate-spin w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full"></div>
+                    <span className="text-sm font-medium text-blue-800 dark:text-blue-300">
+                      {loadingSteps[loadingStep]}
+                    </span>
+                  </div>
+                  <div className="mt-3 bg-blue-200 dark:bg-blue-800 rounded-full h-1.5">
+                    <div
+                      className="bg-purple-500 h-1.5 rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${((loadingStep + 1) / loadingSteps.length) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Skeleton Strategy Cards */}
+                <div>
+                  <div className="flex items-center space-x-2 mb-6">
+                    <div className="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                    <div className="w-48 h-6 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-6 animate-pulse">
+                        <div className="space-y-4">
+                          {/* Header */}
+                          <div className="flex items-start space-x-3">
+                            <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-xl"></div>
+                            <div className="flex-1 space-y-2">
+                              <div className="w-32 h-5 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                              <div className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                              <div className="w-3/4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                            </div>
+                          </div>
+
+                          {/* Advantages */}
+                          <div className="space-y-2">
+                            <div className="w-24 h-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                            {[1, 2, 3].map((j) => (
+                              <div key={j} className="flex items-center space-x-2">
+                                <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                                <div className="w-40 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Best For */}
+                          <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-4">
+                            <div className="w-full h-4 bg-gray-200 dark:bg-gray-600 rounded"></div>
+                          </div>
+
+                          {/* Buttons */}
+                          <div className="space-y-3">
+                            <div className="w-full h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                            <div className="w-full h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Analysis Results */}
             {analysis && (
-              <div className="space-y-8">
+              <div ref={analysisRef} className="space-y-8">
                 {/* Goal Analysis Summary */}
                 <div className="bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-200 dark:border-blue-700/50 rounded-xl p-6">
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
@@ -441,7 +600,7 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
 
             {/* Detailed Plan Viewer */}
             {viewingStrategy && analysis && (
-              <div className="space-y-8">
+              <div ref={planViewRef} className="space-y-8">
                 {/* Header with Back Button */}
                 <div className="flex items-center space-x-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-700/50">
                   <Button
@@ -476,8 +635,19 @@ export const GoalPlanningModal: React.FC<GoalPlanningModalProps> = memo(({
                         {editablePlan.map((task, index) => (
                           <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-bold text-gray-700 dark:text-gray-300 bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded">
-                                Day {task.day}
+                              <span className={`text-sm font-bold px-2 py-1 rounded ${viewingStrategy?.id === 'milestone'
+                                ? 'text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900'
+                                : 'text-gray-700 dark:text-gray-300 bg-blue-100 dark:bg-blue-900'
+                                }`}>
+                                {viewingStrategy?.id === 'milestone'
+                                  ? (() => {
+                                    // Calculate the day range for this milestone
+                                    const prevTask = editablePlan[index - 1];
+                                    const startDay = prevTask ? prevTask.day + 1 : 1;
+                                    return `Day ${startDay}-${task.day}`;
+                                  })()
+                                  : `Day ${task.day}`
+                                }
                               </span>
                               {viewingStrategy?.id !== 'milestone' && (
                                 <div className="flex items-center space-x-2">

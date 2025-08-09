@@ -727,17 +727,16 @@ body::before {
 
 /* Footer styles */
 .footer {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  color: #475569;
-  padding: 2rem 0;
-  margin-top: 4rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  color: #374151;
+  margin-top: 2rem;
 }
 
 .dark .footer {
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(15, 23, 42, 0.9);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   color: #cbd5e1;
 }
