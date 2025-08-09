@@ -53,13 +53,17 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   // Helper to format date and time for calendar links
   const pad = (n: number) => n.toString().padStart(2, '0');
   const getEventTimes = () => {
-    // Create start date at 9 AM local time
+    // Create start date at 9 AM local time for the goal start date
     const startDate = new Date(goal.startDate);
     const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 9, 0, 0);
     
     // Calculate end time based on estimated daily time
     const duration = goal.estimatedDailyTimeMinutes || 60;
     const end = new Date(start.getTime() + duration * 60000);
+    
+    // For recurring events, we need the goal end date
+    const goalEndDate = new Date(goal.endDate);
+    const recurringEnd = new Date(goalEndDate.getFullYear(), goalEndDate.getMonth(), goalEndDate.getDate(), 23, 59, 59);
     
     // Google Calendar format: yyyyMMddTHHmmssZ (UTC)
     const toGoogleUTC = (d: Date) => {
@@ -73,11 +77,69 @@ export const GoalCard: React.FC<GoalCardProps> = ({
     return {
       googleStart: toGoogleUTC(start),
       googleEnd: toGoogleUTC(end),
+      googleRecurringEnd: toGoogleUTC(recurringEnd),
       msStart: toMicrosoft(start),
-      msEnd: toMicrosoft(end)
+      msEnd: toMicrosoft(end),
+      msRecurringEnd: toMicrosoft(recurringEnd)
     };
   };
   const eventTimes = getEventTimes();
+
+  // Create comprehensive event description
+  const createEventDescription = () => {
+    const lines = [];
+    
+    // Goal description
+    if (goal.description) {
+      lines.push(`📝 Description: ${goal.description}`);
+      lines.push('');
+    }
+    
+    // Goal details
+    lines.push(`🎯 Goal: ${goal.title}`);
+    lines.push(`📅 Duration: ${dateUtils.formatDate(goal.startDate)} - ${dateUtils.formatDate(goal.endDate)}`);
+    lines.push(`⏰ Daily Time: ${Math.floor(goal.estimatedDailyTimeMinutes / 60)}h ${goal.estimatedDailyTimeMinutes % 60}m`);
+    lines.push(`🔥 Priority: ${goal.priority.charAt(0).toUpperCase() + goal.priority.slice(1)}`);
+    lines.push(`📊 Status: ${goal.status.charAt(0).toUpperCase() + goal.status.slice(1)}`);
+    
+    // Progress information
+    if (tasksCount > 0) {
+      lines.push(`📈 Progress: ${completedTasksCount}/${tasksCount} tasks completed (${Math.round(progress)}%)`);
+    }
+    
+    // Tags
+    if (goal.tags && goal.tags.length > 0) {
+      lines.push(`🏷️ Tags: ${goal.tags.join(', ')}`);
+    }
+    
+    lines.push('');
+    lines.push('📱 Created with Auto Goal Planner');
+    lines.push('🚀 AI-Powered Goal Planning & Tracking');
+    
+    return lines.join('\n');
+  };
+
+  // Create event title with priority indicator
+  const createEventTitle = () => {
+    const priorityEmoji = {
+      high: '🔴',
+      medium: '🟡', 
+      low: '🟢'
+    };
+    
+    return `${priorityEmoji[goal.priority]} ${goal.title} - Daily Session`;
+  };
+
+  // Create location string
+  const createLocation = () => {
+    return 'Auto Goal Planner - Focus Session';
+  };
+
+  // Generate recurrence rule for daily events (Google Calendar format)
+  const getRecurrenceRule = () => {
+    const totalDays = dateUtils.getDaysBetween(goal.startDate, goal.endDate) + 1;
+    return `RRULE:FREQ=DAILY;COUNT=${totalDays}`;
+  };
 
   return (
     <Card 
@@ -205,22 +267,22 @@ export const GoalCard: React.FC<GoalCardProps> = ({
           {/* Calendar buttons in a separate row on mobile */}
           <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
             <a
-              href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(goal.title)}&details=${encodeURIComponent(`${goal.description || ''}\n\nPriority: ${goal.priority}\nEstimated daily time: ${Math.floor(goal.estimatedDailyTimeMinutes / 60)}h ${goal.estimatedDailyTimeMinutes % 60}m`)}&dates=${eventTimes.googleStart}/${eventTimes.googleEnd}&location=${encodeURIComponent('Auto Goal Planner')}`}
+              href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(createEventTitle())}&details=${encodeURIComponent(createEventDescription())}&dates=${eventTimes.googleStart}/${eventTimes.googleEnd}&location=${encodeURIComponent(createLocation())}&recur=${encodeURIComponent(getRecurrenceRule())}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50 transition-all border border-green-200 dark:border-green-700 shadow-sm backdrop-blur-sm flex-shrink-0"
-              title="Add to Google Calendar"
+              title="Add recurring daily sessions to Google Calendar"
             >
               <Calendar className="w-4 h-4 mr-1.5 text-green-600 dark:text-green-400" />
               <span className="hidden sm:inline">Google</span>
               <span className="sm:hidden">G</span>
             </a>
             <a
-              href={`https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(goal.title)}&body=${encodeURIComponent(`${goal.description || ''}\n\nPriority: ${goal.priority}\nEstimated daily time: ${Math.floor(goal.estimatedDailyTimeMinutes / 60)}h ${goal.estimatedDailyTimeMinutes % 60}m`)}&startdt=${eventTimes.msStart}&enddt=${eventTimes.msEnd}&location=${encodeURIComponent('Auto Goal Planner')}`}
+              href={`https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(createEventTitle())}&body=${encodeURIComponent(createEventDescription())}&startdt=${eventTimes.msStart}&enddt=${eventTimes.msEnd}&location=${encodeURIComponent(createLocation())}&allday=false&rru=daily&until=${eventTimes.msRecurringEnd}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-all border border-blue-200 dark:border-blue-700 shadow-sm backdrop-blur-sm flex-shrink-0"
-              title="Add to Microsoft Calendar"
+              title="Add recurring daily sessions to Microsoft Calendar"
             >
               <Calendar className="w-4 h-4 mr-1.5 text-blue-600 dark:text-blue-400" />
               <span className="hidden sm:inline">Outlook</span>
