@@ -401,8 +401,8 @@ const FullscreenImageModal: React.FC<FullscreenImageModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="modal-overlay fullscreen-modal">
+  const modalContent = (
+    <div className="modal-overlay fullscreen-modal" role="dialog" aria-modal="true">
       {/* Header with controls */}
       <div className="fullscreen-controls">
         <div className="fullscreen-controls-left">
@@ -485,6 +485,8 @@ const FullscreenImageModal: React.FC<FullscreenImageModalProps> = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export const PhotoCard: React.FC<PhotoCardProps> = ({
@@ -495,7 +497,10 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showFullscreenModal, setShowFullscreenModal] = useState(false);
+  const [showInlineControls, setShowInlineControls] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [inlineZoom, setInlineZoom] = useState<number>((card.config.photo as any)?.__inlineZoom || 1);
+  const [inlineRotate, setInlineRotate] = useState<number>((card.config.photo as any)?.__inlineRotate || 0);
 
   const photoConfig = card.config.photo;
 
@@ -602,15 +607,80 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({
             </div>
           </div>
         ) : (
-          <div className="aspect-[4/3] overflow-hidden">
+          <div className="aspect-[4/3] overflow-hidden relative">
             <img
               src={photoConfig.imageUrl}
               alt={photoConfig.altText}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+              className={`${styles.cardImage} w-full h-full object-cover transition-transform duration-200`}
               onError={handleImageError}
               loading="lazy"
-              onClick={() => setShowFullscreenModal(true)}
+              onClick={() => setShowInlineControls(prev => !prev)}
+              style={{
+                transform: `scale(${inlineZoom}) rotate(${inlineRotate}deg)`
+              }}
             />
+
+            {/* Inline controls overlay (visible after single click) */}
+            {showInlineControls && (
+              <div className={`${styles.inlineControls} absolute top-2 left-2 right-2 flex justify-between items-center pointer-events-none`}>
+                <div className="pointer-events-auto flex items-center space-x-2 bg-black/30 backdrop-blur-sm rounded-md p-1">
+                  <Button
+                    onClick={() => {
+                      setShowUploadModal(true);
+                      setShowInlineControls(false);
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 text-white"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setInlineZoom(prev => Math.min(5, Math.round((prev + 0.25) * 100) / 100));
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 text-white"
+                  >
+                    <ZoomIn className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setInlineZoom(prev => Math.max(0.5, Math.round((prev - 0.25) * 100) / 100));
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 text-white"
+                  >
+                    <ZoomOut className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setInlineRotate(prev => (prev + 90) % 360);
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 text-white"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div className="pointer-events-auto">
+                  <Button
+                    onClick={() => {
+                      setShowInlineControls(false);
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

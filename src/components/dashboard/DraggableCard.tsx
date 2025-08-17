@@ -8,6 +8,8 @@ interface DraggableCardProps {
   card: DashboardCard;
   index: number;
   isCustomizing: boolean;
+  // when true, the card can be dragged (may be enabled outside of customization mode)
+  draggingEnabled?: boolean;
   isDragging: boolean;
   onUpdate: (cardId: string, updates: Partial<DashboardCard>) => void;
   onDelete: (cardId: string) => void;
@@ -28,6 +30,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({
   card,
   index,
   isCustomizing,
+  draggingEnabled = false,
   isDragging,
   onUpdate,
   onDelete,
@@ -44,31 +47,57 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({
 }) => {
   const [dragOver, setDragOver] = useState(false);
   const dragRef = useRef<HTMLDivElement>(null);
+  const pointerDownRef = useRef(false);
+  const startedDragRef = useRef(false);
+  const startPosRef = useRef({ x: 0, y: 0 });
+  const mouseMoveHandlerRef = useRef<((e: MouseEvent) => void) | null>(null);
+  const touchMoveHandlerRef = useRef<((e: TouchEvent) => void) | null>(null);
 
   const handleDragStart = (e: React.DragEvent) => {
-    if (!isCustomizing) {
+    if (!draggingEnabled) {
       e.preventDefault();
       return;
     }
-    
+
+    // Prevent native dragstart from activating on a simple click. Only allow
+    // the native drag to proceed if the pointer moved past the threshold.
+    try {
+      const dx = e.clientX - startPosRef.current.x;
+      const dy = e.clientY - startPosRef.current.y;
+      if (Math.hypot(dx, dy) <= 6 && !startedDragRef.current) {
+        // Too small movement - treat as click, ignore native dragstart
+        e.preventDefault();
+        return;
+      }
+    } catch (e) {
+      void e;
+    }
+
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', card.id);
+    // expose the card id under multiple mime types so drop targets can read it
+    try {
+      e.dataTransfer.setData('text/plain', card.id);
+      e.dataTransfer.setData('text/html', card.id);
+      e.dataTransfer.setData('application/x-card-id', card.id);
+    } catch {
+      // Some browsers may throw when setting multiple types in certain environments — ignore
+    }
     onDragStart(card.id, index);
   };
 
   const handleDragEnd = (e: React.DragEvent) => {
     e.preventDefault();
     onDragEnd();
-    setDragOver(false);
+  setDragOver(false);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    if (!dragOver) {
-      setDragOver(true);
-      onDragOver(index);
-    }
+  // Always set dragOver visual and inform parent of current hover index so
+  // the preview ordering can update continuously as the pointer moves.
+  if (!dragOver) setDragOver(true);
+  onDragOver(index);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
@@ -84,6 +113,8 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({
         clientY > rect.bottom
       ) {
         setDragOver(false);
+  // notify parent we've left this card
+  onDragOver(-1);
       }
     }
   };
@@ -96,23 +127,108 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({
   return (
     <div
       ref={dragRef}
-      draggable={isCustomizing}
+      draggable={draggingEnabled}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      // Capture mousedown/touchstart and only start drag after a small movement threshold
+      onMouseDownCapture={(e) => {
+        if (!draggingEnabled) return;
+        pointerDownRef.current = true;
+        startedDragRef.current = false;
+        startPosRef.current = { x: e.clientX, y: e.clientY };
+
+        // attach window move handler
+        mouseMoveHandlerRef.current = (ev: MouseEvent) => {
+          if (!pointerDownRef.current || startedDragRef.current) return;
+          const dx = ev.clientX - startPosRef.current.x;
+          const dy = ev.clientY - startPosRef.current.y;
+          if (Math.hypot(dx, dy) > 6) {
+            startedDragRef.current = true;
+            onDragStart(card.id, index);
+          }
+        };
+
+        window.addEventListener('mousemove', mouseMoveHandlerRef.current);
+        // cleanup on mouseup
+        const upHandler = () => {
+          // If we started a synthetic drag via movement threshold, finalize it
+          if (startedDragRef.current) {
+            try {
+              onDragEnd();
+            } catch (e) {
+              // ignore errors from synthetic drag finalization
+              void e;
+            }
+          }
+          pointerDownRef.current = false;
+          startedDragRef.current = false;
+          if (mouseMoveHandlerRef.current) {
+            window.removeEventListener('mousemove', mouseMoveHandlerRef.current);
+            mouseMoveHandlerRef.current = null;
+          }
+        };
+        window.addEventListener('mouseup', upHandler, { once: true });
+      }}
+      onTouchStartCapture={(e) => {
+        if (!draggingEnabled) return;
+        const t = e.touches[0];
+        pointerDownRef.current = true;
+        startedDragRef.current = false;
+        startPosRef.current = { x: t.clientX, y: t.clientY };
+
+        touchMoveHandlerRef.current = (ev: TouchEvent) => {
+          if (!pointerDownRef.current || startedDragRef.current) return;
+          const touch = ev.touches[0];
+          if (!touch) return;
+          const dx = touch.clientX - startPosRef.current.x;
+          const dy = touch.clientY - startPosRef.current.y;
+          if (Math.hypot(dx, dy) > 6) {
+            startedDragRef.current = true;
+            onDragStart(card.id, index);
+          }
+        };
+
+        window.addEventListener('touchmove', touchMoveHandlerRef.current as EventListener);
+        const touchEnd = () => {
+          // If we started a synthetic drag via movement threshold, finalize it
+          if (startedDragRef.current) {
+            try {
+              onDragEnd();
+            } catch (e) {
+              // ignore errors from synthetic drag finalization
+              void e;
+            }
+          }
+          pointerDownRef.current = false;
+          startedDragRef.current = false;
+          if (touchMoveHandlerRef.current) {
+            window.removeEventListener('touchmove', touchMoveHandlerRef.current as EventListener);
+            touchMoveHandlerRef.current = null;
+          }
+        };
+        window.addEventListener('touchend', touchEnd, { once: true });
+      }}
       className={`
         relative transition-all duration-200
-        ${isCustomizing ? 'cursor-move' : 'cursor-default'}
+        ${draggingEnabled ? 'cursor-move' : 'cursor-default'}
         ${isDragging ? 'opacity-50 scale-95 rotate-2' : 'opacity-100 scale-100 rotate-0'}
-        ${dragOver && isCustomizing ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}
+        ${dragOver && draggingEnabled ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}
       `}
     >
       {/* Drag Handle - Only visible when customizing */}
       {isCustomizing && (
         <div className="absolute -top-2 -right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="bg-blue-500 text-white p-1 rounded-full shadow-lg">
+          {/* Make the small handle itself draggable so users can reliably start a drag from the handle */}
+          <div
+            draggable={draggingEnabled}
+            onDragStart={handleDragStart}
+            onMouseDown={(e) => e.stopPropagation()}
+            className="bg-blue-500 text-white p-1 rounded-full shadow-lg cursor-move"
+            aria-hidden
+          >
             <Move className="w-3 h-3" />
           </div>
         </div>

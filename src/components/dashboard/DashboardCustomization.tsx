@@ -114,6 +114,8 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
           <DragDropContainer
             cards={cards}
             isCustomizing={isCustomizing}
+            // enable dragging in the regular dashboard view (not when customizing)
+            dragEnabled={!isCustomizing}
             onReorderCards={reorderCards}
             onUpdate={updateCard}
             onDelete={deleteCard}

@@ -149,6 +149,8 @@ export const CardManager: React.FC<CardManagerProps> = ({
           className="relative group"
           data-card-id={card.id}
         >
+          {/* Remove button visible on hover when NOT customizing */}
+          {/* delete button removed — cards are deleted via drag-to-bin now */}
           <CardRenderer
             card={card}
             isCustomizing={isCustomizing}

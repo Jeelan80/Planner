@@ -44,3 +44,54 @@
 :global(.dark) .modalContent {
   background-color: #1f2937; /* dark:bg-gray-900 */
 }
+
+/* Fullscreen modal styles (used by FullscreenImageModal) */
+:global(.modal-overlay.fullscreen-modal) {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0,0,0,0.6);
+  z-index: 2147483647;
+}
+
+:global(.fullscreen-controls) {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2150;
+}
+
+:global(.fullscreen-controls-left) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:global(.fullscreen-modal .modal-overlay) {
+  /* fallback if class order differs */
+}
+
+/* Inline card image tweaks */
+.cardImage {
+  transition: transform 160ms ease;
+}
+
+/* When inline controls are visible we keep overlay clickable */
+.inlineControls {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 50;
+  pointer-events: auto;
+}
