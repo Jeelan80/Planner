@@ -70,3 +70,6 @@ export interface TaskUpdatePayload {
   actualTimeSpent?: number;
   notes?: string;
 }
+
+// Re-export dashboard types
+export * from './dashboard';

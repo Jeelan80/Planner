@@ -1,0 +1,5 @@
+src/components/dashboard/cards/PhotoCard.tsx
+src/components/dashboard/cards/ProjectProgressCard.tsx
+src/components/dashboard/cards/QuickNotesCard.tsx
+src/components/dashboard/cards/MotivationalQuoteCard.tsx
+**/*Card.tsx

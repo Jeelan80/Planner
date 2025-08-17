@@ -11,7 +11,6 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
-  title = 'Auto Goal Planner',
   onSettingsClick,
   onLogoClick
 }) => {

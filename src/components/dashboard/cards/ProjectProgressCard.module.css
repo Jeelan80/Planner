@@ -1,0 +1,20 @@
+.progressBar {
+  background: linear-gradient(to right, #10b981, #059669);
+  height: 0.75rem;
+  border-radius: 9999px;
+  transition: all 500ms ease-out;
+}
+
+/* Create width percentage classes */
+.width10 { width: 10%; }
+.width20 { width: 20%; }
+.width30 { width: 30%; }
+.width40 { width: 40%; }
+.width50 { width: 50%; }
+.width60 { width: 60%; }
+.width70 { width: 70%; }
+.width80 { width: 80%; }
+.width90 { width: 90%; }
+.width100 { width: 100%; }
+
+/* The width of the progress bar will be set using JavaScript to add the appropriate class */

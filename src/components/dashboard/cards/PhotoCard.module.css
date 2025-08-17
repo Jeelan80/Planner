@@ -1,0 +1,46 @@
+.zoomableImage {
+  max-width: none;
+  max-height: none;
+  transition: transform 0.2s;
+  user-select: none;
+}
+
+.imageTransform {
+  transform: scale(var(--zoom)) translate(var(--x-pos), var(--y-pos));
+}
+
+/* Add custom class for each zoom level and position variation */
+.zoomLevel1 { --zoom: 1; }
+.zoomLevel2 { --zoom: 2; }
+.zoomLevel3 { --zoom: 3; }
+
+.position0_0 { --x-pos: 0px; --y-pos: 0px; }
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  z-index: 2147483647;
+}
+
+.modalContent {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  width: 95vw;
+  max-width: 1200px;
+  max-height: 95vh;
+  overflow-y: auto;
+  min-width: 800px;
+  z-index: 2147483647;
+  position: relative;
+}
+
+:global(.dark) .modalContent {
+  background-color: #1f2937; /* dark:bg-gray-900 */
+}

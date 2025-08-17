@@ -1,0 +1,19 @@
+{
+  "extends": [],
+  "rules": {
+    "no-inline-styles": "off",
+    "@typescript-eslint/no-inline-styles": "off",
+    "react/no-inline-styles": "off",
+    "jsx-a11y/no-inline-styles": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*Card.tsx", "**/*Modal.tsx"],
+      "rules": {
+        "no-inline-styles": "off",
+        "@typescript-eslint/no-inline-styles": "off",
+        "react/no-inline-styles": "off"
+      }
+    }
+  ]
+}

@@ -27,7 +27,7 @@ class LocalStorageService {
       
       const goals = JSON.parse(stored);
       // Convert date strings back to Date objects
-      return goals.map((goal: any) => ({
+      return goals.map((goal: Goal) => ({
         ...goal,
         startDate: new Date(goal.startDate),
         endDate: new Date(goal.endDate),
@@ -56,7 +56,7 @@ class LocalStorageService {
       if (!stored) return [];
       
       const tasks = JSON.parse(stored);
-      return tasks.map((task: any) => ({
+      return tasks.map((task: Task) => ({
         ...task,
         scheduledDate: new Date(task.scheduledDate),
         completedAt: task.completedAt ? new Date(task.completedAt) : undefined,
@@ -83,7 +83,7 @@ class LocalStorageService {
       if (!stored) return [];
       
       const progress = JSON.parse(stored);
-      return progress.map((p: any) => ({
+      return progress.map((p: Progress) => ({
         ...p,
         lastActiveDate: p.lastActiveDate ? new Date(p.lastActiveDate) : undefined,
       }));
@@ -133,7 +133,13 @@ class LocalStorageService {
     };
   }
 
-  importData(data: any): void {
+  importData(data: {
+    goals?: Goal[];
+    tasks?: Task[];
+    progress?: Progress[];
+    settings?: AppSettings;
+    exportDate?: string;
+  }): void {
     try {
       if (data.goals) this.saveGoals(data.goals);
       if (data.tasks) this.saveTasks(data.tasks);

@@ -1,4 +1,6 @@
-// Form component for creating goals
+// BACKUP: Full functionality PlannerForm with TimePickerInput
+// This is the complete version with time picker functionality
+// Saved for future use - DO NOT IMPORT
 
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
@@ -16,7 +18,7 @@ interface PlannerFormProps {
   loading?: boolean;
 }
 
-export const PlannerForm: React.FC<PlannerFormProps> = ({
+export const PlannerFormWithTimePicker: React.FC<PlannerFormProps> = ({
   onSubmit,
   onCancel,
   initialData,

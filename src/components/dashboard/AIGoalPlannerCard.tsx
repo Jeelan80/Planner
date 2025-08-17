@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Card } from '../common/Card';
-import { Button } from '../common/Button';
 import { Brain, Sparkles, Target, Clock, Zap } from 'lucide-react';
 import { GoalPlanningModal } from './GoalPlanningModal';
 // Type definitions for AI planner

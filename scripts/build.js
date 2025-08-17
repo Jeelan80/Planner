@@ -1,8 +1,8 @@
 // Build script for production deployment
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 console.log('🚀 Building Auto Goal Planner...');
 
@@ -13,14 +13,17 @@ try {
     console.log('✓ Cleaned previous build');
   }
 
-  // Run build
-  execSync('npm run build', { stdio: 'inherit' });
+  // Run Vite build
+  execSync('vite build', { stdio: 'inherit' });
   console.log('✓ Build completed successfully');
 
+  // Read package.json to get version
+  const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+  
   // Generate build info
   const buildInfo = {
     buildTime: new Date().toISOString(),
-    version: require('../package.json').version,
+    version: packageJson.version,
     nodeVersion: process.version,
   };
 

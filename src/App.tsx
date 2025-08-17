@@ -14,6 +14,7 @@ import { PersonalizedWelcome } from './components/common/PersonalizedWelcome';
 import { AIGoalPlannerCard } from './components/dashboard/AIGoalPlannerCard';
 import { GoalPlanningModal } from './components/dashboard/GoalPlanningModal';
 import { GoalDetailsModal } from './components/dashboard/GoalDetailsModal';
+import { DashboardCustomization } from './components/dashboard/DashboardCustomization';
 
 import { useGoals } from './hooks/useGoals';
 import { useTasks } from './hooks/useTasks';
@@ -55,7 +56,7 @@ function App() {
   } = useGoals();
 
   const {
-    // tasks,
+    tasks,
     generateTasksForGoal,
     updateTask,
     addTask,
@@ -63,6 +64,7 @@ function App() {
     deleteTask,
     getTasksForGoal,
     getTodaysTasks,
+    getOverdueTasks,
     deleteTasksForGoal,
   } = useTasks();
 
@@ -198,6 +200,18 @@ function App() {
         />
       </div>
 
+      {/* Dashboard Customization Section - Right after welcome */}
+      <div>
+        <DashboardCustomization
+          goals={goals}
+          tasks={tasks}
+          getTasksForGoal={getTasksForGoal}
+          getTodaysTasks={getTodaysTasks}
+          getOverdueTasks={getOverdueTasks}
+          onToggleTask={handleToggleTask}
+        />
+      </div>
+
       {/* AI Goal Planner Card - Show at top if no goals exist */}
       {goals.length === 0 && (
         <AIGoalPlannerCard onStrategySelected={handleGoalPlanningModalStrategySelected} />
@@ -330,6 +344,8 @@ function App() {
           )}
         </div>
       )}
+
+
 
       {/* Feature Highlights for First-Time Users */}
       {goals.length === 0 && !goalsLoading && (

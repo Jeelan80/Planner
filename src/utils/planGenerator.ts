@@ -13,9 +13,6 @@ export class PlanGenerator {
       throw new Error('No available dates for task scheduling');
     }
 
-    // Calculate total available time
-    const totalAvailableMinutes = availableDates.length * goal.estimatedDailyTimeMinutes;
-    
     // Generate daily tasks
     const dailyTasks = this.generateDailyTasks(goal, availableDates);
     tasks.push(...dailyTasks);
