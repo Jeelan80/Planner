@@ -47,6 +47,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({
 }) => {
   const [dragOver, setDragOver] = useState(false);
   const dragRef = useRef<HTMLDivElement>(null);
+  const tempDragImageRef = useRef<HTMLElement | null>(null);
   const pointerDownRef = useRef(false);
   const startedDragRef = useRef(false);
   const startPosRef = useRef({ x: 0, y: 0 });
@@ -82,13 +83,46 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({
     } catch {
       // Some browsers may throw when setting multiple types in certain environments — ignore
     }
+    // Create a temporary drag image so the skeleton follows the cursor reliably
+    try {
+      const node = dragRef.current;
+      if (node && e.dataTransfer && typeof e.dataTransfer.setDragImage === 'function') {
+        const clone = node.cloneNode(true) as HTMLElement;
+        clone.style.boxSizing = 'border-box';
+        clone.style.width = `${node.offsetWidth}px`;
+        clone.style.height = `${node.offsetHeight}px`;
+        clone.style.position = 'absolute';
+        clone.style.top = '-9999px';
+        clone.style.left = '-9999px';
+        clone.style.opacity = '0.98';
+        clone.style.transform = 'none';
+        document.body.appendChild(clone);
+        try {
+          e.dataTransfer.setDragImage(clone, Math.round(node.offsetWidth / 2), Math.round(node.offsetHeight / 2));
+          tempDragImageRef.current = clone;
+        } catch (err) {
+          // ignore setDragImage errors
+          void err;
+          if (clone.parentNode) clone.parentNode.removeChild(clone);
+        }
+      }
+    } catch (err) {
+      void err;
+    }
     onDragStart(card.id, index);
   };
 
   const handleDragEnd = (e: React.DragEvent) => {
     e.preventDefault();
+    // remove temporary drag image if any
+    try {
+      if (tempDragImageRef.current && tempDragImageRef.current.parentNode) {
+        tempDragImageRef.current.parentNode.removeChild(tempDragImageRef.current);
+      }
+    } catch (err) { void err; }
+    tempDragImageRef.current = null;
     onDragEnd();
-  setDragOver(false);
+    setDragOver(false);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -157,6 +191,12 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({
           // If we started a synthetic drag via movement threshold, finalize it
           if (startedDragRef.current) {
             try {
+              if (tempDragImageRef.current && tempDragImageRef.current.parentNode) {
+                tempDragImageRef.current.parentNode.removeChild(tempDragImageRef.current);
+              }
+            } catch (err) { void err; }
+            tempDragImageRef.current = null;
+            try {
               onDragEnd();
             } catch (e) {
               // ignore errors from synthetic drag finalization
@@ -195,6 +235,12 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({
         const touchEnd = () => {
           // If we started a synthetic drag via movement threshold, finalize it
           if (startedDragRef.current) {
+            try {
+              if (tempDragImageRef.current && tempDragImageRef.current.parentNode) {
+                tempDragImageRef.current.parentNode.removeChild(tempDragImageRef.current);
+              }
+            } catch (err) { void err; }
+            tempDragImageRef.current = null;
             try {
               onDragEnd();
             } catch (e) {
